@@ -1,0 +1,57 @@
+{
+  "realm": "smartskale",
+  "enabled": true,
+  "displayName": "SmartSkale Candidate Sourcing System",
+
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "verifyEmail": false,
+
+  "roles": {
+    "realm": [
+      {
+        "name": "CANDIDATE",
+        "description": "External candidate"
+      },
+      {
+        "name": "RECRUITER",
+        "description": "Internal recruiter"
+      },
+      {
+        "name": "ADMIN",
+        "description": "System administrator"
+      }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "smartskale-web",
+      "name": "SmartSkale Web Application",
+      "enabled": true,
+      "protocol": "openid-connect",
+
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+
+      "webOrigins": [
+        "http://localhost:5173"
+      ],
+
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ]
+}
