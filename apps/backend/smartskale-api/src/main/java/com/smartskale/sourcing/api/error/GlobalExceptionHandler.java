@@ -1,20 +1,19 @@
 package com.smartskale.sourcing.api.error;
 
+import com.smartskale.sourcing.candidate.exception.CandidateNotFoundException;
+import com.smartskale.sourcing.candidate.exception.InvalidCandidateDataException;
 import com.smartskale.sourcing.requisition.exception.InvalidRequisitionStateException;
 import com.smartskale.sourcing.requisition.exception.RequisitionNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.dao.OptimisticLockingFailureException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -23,9 +22,12 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RequisitionNotFoundException.class)
+    @ExceptionHandler({
+            RequisitionNotFoundException.class,
+            CandidateNotFoundException.class
+    })
     public ResponseEntity<ApiErrorResponse> handleNotFound(
-            RequisitionNotFoundException exception,
+            RuntimeException exception,
             HttpServletRequest request
     ) {
 
@@ -38,13 +40,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidRequisitionStateException.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidState(
+    public ResponseEntity<ApiErrorResponse> handleConflict(
             InvalidRequisitionStateException exception,
             HttpServletRequest request
     ) {
 
         return build(
                 HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI(),
+                Map.of()
+        );
+    }
+
+    @ExceptionHandler(InvalidCandidateDataException.class)
+    public ResponseEntity<ApiErrorResponse> handleCandidateValidation(
+            InvalidCandidateDataException exception,
+            HttpServletRequest request
+    ) {
+
+        return build(
+                HttpStatus.BAD_REQUEST,
                 exception.getMessage(),
                 request.getRequestURI(),
                 Map.of()
@@ -60,8 +76,7 @@ public class GlobalExceptionHandler {
         Map<String, String> fieldErrors =
                 new LinkedHashMap<>();
 
-        exception
-                .getBindingResult()
+        exception.getBindingResult()
                 .getFieldErrors()
                 .forEach(error ->
                         fieldErrors.put(
