@@ -1,0 +1,11 @@
+package com.smartskale.sourcing.application.exception;
+
+public class InvalidApplicationException
+        extends RuntimeException {
+
+    public InvalidApplicationException(
+            String message
+    ) {
+        super(message);
+    }
+}
