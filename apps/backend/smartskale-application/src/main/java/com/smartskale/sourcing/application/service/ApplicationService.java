@@ -1,10 +1,12 @@
 package com.smartskale.sourcing.application.service;
 
+import com.smartskale.sourcing.application.dto.AdminApplicationCsvExport;
 import com.smartskale.sourcing.application.dto.AdminApplicationDetailResponse;
 import com.smartskale.sourcing.application.dto.AdminApplicationResponse;
 import com.smartskale.sourcing.application.dto.ApplicationResponse;
 import com.smartskale.sourcing.application.dto.SubmitApplicationRequest;
 import com.smartskale.sourcing.application.dto.UpdateApplicationStatusRequest;
+import com.smartskale.sourcing.application.domain.ApplicationStatus;
 import com.smartskale.sourcing.application.entity.CandidateApplication;
 import com.smartskale.sourcing.application.event.ApplicationSubmittedEvent;
 import com.smartskale.sourcing.application.exception.ApplicationNotFoundException;
@@ -26,6 +28,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
 
 import java.util.List;
 import java.util.UUID;
@@ -193,6 +197,194 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
+    public List<AdminApplicationResponse> searchAdmin(
+            String search,
+            ApplicationStatus status,
+            UUID requisitionId
+    ) {
+
+        String normalizedSearch =
+                normalizeSearch(search);
+
+        return applicationRepository
+                .searchAdminApplications(
+                        normalizedSearch,
+                        status,
+                        requisitionId
+                )
+                .stream()
+                .map(this::toAdminResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public AdminApplicationCsvExport exportApplicationsCsv(
+            UUID requisitionId,
+            String search,
+            ApplicationStatus status
+    ) {
+
+        Requisition requisition =
+                requisitionRepository
+                        .findById(requisitionId)
+                        .orElseThrow(() ->
+                                new InvalidApplicationException(
+                                        "Requisition not found."
+                                )
+                        );
+
+        List<AdminApplicationResponse> applications =
+                searchAdmin(
+                        search,
+                        status,
+                        requisitionId
+                );
+
+        StringBuilder csv =
+                new StringBuilder();
+
+        csv.append('\uFEFF');
+
+        csv.append(
+                "Application ID," +
+                "Application Reference," +
+                "Candidate Name," +
+                "Candidate Email," +
+                "Applied On," +
+                "Experience Months," +
+                "Location," +
+                "Status," +
+                "Requisition Number," +
+                "Job Title," +
+                "Resume Version," +
+                "Resume Filename," +
+                "Resume Download URL," +
+                "Cover Note\r\n"
+        );
+
+        for (AdminApplicationResponse application : applications) {
+
+            String candidateName =
+                    (
+                            application.candidateFirstName()
+                                    + " "
+                                    + application.candidateLastName()
+                    ).trim();
+
+            String resumeDownloadUrl =
+                    "/api/v1/admin/applications/"
+                            + application.id()
+                            + "/resume";
+
+            csv.append(escapeCsv(application.id()))
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.applicationReference()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(candidateName)
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.candidateEmail()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.submittedAt()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.totalExperienceMonths()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.candidateLocation()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.status()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.requisitionNumber()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.jobTitle()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.resumeVersion()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.resumeFilename()
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    resumeDownloadUrl
+                            )
+                    )
+                    .append(",")
+
+                    .append(
+                            escapeCsv(
+                                    application.coverNote()
+                            )
+                    )
+
+                    .append("\r\n");
+        }
+
+        String filename =
+                "applications-"
+                        + requisition.getRequisitionId()
+                        + ".csv";
+
+        return new AdminApplicationCsvExport(
+                filename,
+                csv.toString()
+                        .getBytes(
+                                StandardCharsets.UTF_8
+                        )
+        );
+    }
+
+    @Transactional(readOnly = true)
     public AdminApplicationDetailResponse findAdminDetail(
             UUID applicationId
     ) {
@@ -291,6 +483,39 @@ public class ApplicationService {
                 );
 
         eventPublisher.publishEvent(event);
+    }
+
+    private String normalizeSearch(
+            String search
+    ) {
+
+        if (search == null ||
+                search.isBlank()) {
+
+            return "";
+        }
+
+        return search.trim();
+    }
+
+    private String escapeCsv(
+            Object value
+    ) {
+
+        if (value == null) {
+            return "\"\"";
+        }
+
+        String text =
+                value.toString()
+                        .replace(
+                                "\"",
+                                "\"\""
+                        );
+
+        return "\""
+                + text
+                + "\"";
     }
 
     private CandidateApplication getRequiredApplication(
