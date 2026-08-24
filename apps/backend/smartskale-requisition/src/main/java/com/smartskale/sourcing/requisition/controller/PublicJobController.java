@@ -1,39 +1,64 @@
 package com.smartskale.sourcing.requisition.controller;
 
+import com.smartskale.sourcing.requisition.domain.EmploymentType;
 import com.smartskale.sourcing.requisition.dto.RequisitionResponse;
-import com.smartskale.sourcing.requisition.service.RequisitionService;
+import com.smartskale.sourcing.requisition.service.PublicJobDiscoveryService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/public/jobs")
 public class PublicJobController {
 
-    private final RequisitionService service;
+    private final PublicJobDiscoveryService service;
 
     public PublicJobController(
-            RequisitionService service
+            PublicJobDiscoveryService service
     ) {
         this.service = service;
     }
 
     @GetMapping
-    public List<RequisitionResponse> list() {
-        return service.listPublished();
+    public List<RequisitionResponse> list(
+            @RequestParam(required = false)
+            String search,
+
+            @RequestParam(required = false)
+            String department,
+
+            @RequestParam(required = false)
+            String location,
+
+            @RequestParam(required = false)
+            EmploymentType employmentType,
+
+            @RequestParam(required = false)
+            String experience
+    ) {
+
+        return service.searchPublished(
+                search,
+                department,
+                location,
+                employmentType,
+                experience
+        );
     }
 
-    @GetMapping("/{requisitionId}")
+    @GetMapping("/{id}")
     public RequisitionResponse find(
-            @PathVariable
-            String requisitionId
+            @PathVariable UUID id
     ) {
+
         return service.findPublished(
-                requisitionId
+                id
         );
     }
 }
