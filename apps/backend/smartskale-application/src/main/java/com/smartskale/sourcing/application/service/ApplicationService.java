@@ -1,5 +1,6 @@
 package com.smartskale.sourcing.application.service;
 
+import com.smartskale.sourcing.application.dto.AdminApplicationDetailResponse;
 import com.smartskale.sourcing.application.dto.AdminApplicationResponse;
 import com.smartskale.sourcing.application.dto.ApplicationResponse;
 import com.smartskale.sourcing.application.dto.SubmitApplicationRequest;
@@ -12,11 +13,14 @@ import com.smartskale.sourcing.application.exception.InvalidApplicationException
 import com.smartskale.sourcing.application.repository.CandidateApplicationRepository;
 import com.smartskale.sourcing.candidate.entity.CandidateProfile;
 import com.smartskale.sourcing.candidate.repository.CandidateProfileRepository;
+import com.smartskale.sourcing.candidate.service.CandidateProfileService;
 import com.smartskale.sourcing.requisition.domain.RequisitionStatus;
 import com.smartskale.sourcing.requisition.entity.Requisition;
 import com.smartskale.sourcing.requisition.repository.RequisitionRepository;
 import com.smartskale.sourcing.resume.entity.CandidateResume;
+import com.smartskale.sourcing.resume.dto.ResumeDownload;
 import com.smartskale.sourcing.resume.repository.CandidateResumeRepository;
+import com.smartskale.sourcing.resume.service.ResumeService;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
@@ -34,6 +38,8 @@ public class ApplicationService {
     private final CandidateProfileRepository candidateRepository;
     private final RequisitionRepository requisitionRepository;
     private final CandidateResumeRepository resumeRepository;
+    private final CandidateProfileService candidateProfileService;
+    private final ResumeService resumeService;
     private final ApplicationEventPublisher eventPublisher;
 
     public ApplicationService(
@@ -41,12 +47,16 @@ public class ApplicationService {
             CandidateProfileRepository candidateRepository,
             RequisitionRepository requisitionRepository,
             CandidateResumeRepository resumeRepository,
+            CandidateProfileService candidateProfileService,
+            ResumeService resumeService,
             ApplicationEventPublisher eventPublisher
     ) {
         this.applicationRepository = applicationRepository;
         this.candidateRepository = candidateRepository;
         this.requisitionRepository = requisitionRepository;
         this.resumeRepository = resumeRepository;
+        this.candidateProfileService = candidateProfileService;
+        this.resumeService = resumeService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -183,12 +193,52 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public AdminApplicationResponse findAdmin(
+    public AdminApplicationDetailResponse findAdminDetail(
             UUID applicationId
     ) {
 
-        return toAdminResponse(
-                getRequiredApplication(applicationId)
+        CandidateApplication application =
+                getRequiredApplication(applicationId);
+
+        CandidateProfile candidate =
+                candidateRepository
+                        .findById(application.getCandidateId())
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Candidate referenced by application does not exist."
+                                )
+                        );
+
+        String keycloakSubject =
+                candidate.getKeycloakSubject();
+
+        return new AdminApplicationDetailResponse(
+                toAdminResponse(application),
+
+                candidateProfileService.getProfile(
+                        keycloakSubject
+                ),
+
+                candidateProfileService.listEducation(
+                        keycloakSubject
+                ),
+
+                candidateProfileService.listExperience(
+                        keycloakSubject
+                )
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ResumeDownload downloadAdminResume(
+            UUID applicationId
+    ) {
+
+        CandidateApplication application =
+                getRequiredApplication(applicationId);
+
+        return resumeService.downloadById(
+                application.getResumeId()
         );
     }
 

@@ -195,6 +195,31 @@ public class ResumeService {
         );
     }
 
+    public ResumeDownload downloadById(
+            UUID resumeId
+    ) {
+
+        CandidateResume resume =
+                resumeRepository
+                        .findById(resumeId)
+                        .orElseThrow(() ->
+                                new ResumeNotFoundException(
+                                        "Resume not found: " + resumeId
+                                )
+                        );
+
+        byte[] content =
+                storage.load(
+                        resume.getStorageKey()
+                );
+
+        return new ResumeDownload(
+                resume.getOriginalFilename(),
+                resume.getContentType(),
+                content
+        );
+    }
+
     @Transactional
     public void deleteCurrent(
             String keycloakSubject
