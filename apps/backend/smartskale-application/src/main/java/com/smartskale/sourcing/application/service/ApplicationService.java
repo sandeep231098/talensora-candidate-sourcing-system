@@ -5,6 +5,7 @@ import com.smartskale.sourcing.application.dto.ApplicationResponse;
 import com.smartskale.sourcing.application.dto.SubmitApplicationRequest;
 import com.smartskale.sourcing.application.dto.UpdateApplicationStatusRequest;
 import com.smartskale.sourcing.application.entity.CandidateApplication;
+import com.smartskale.sourcing.application.event.ApplicationSubmittedEvent;
 import com.smartskale.sourcing.application.exception.ApplicationNotFoundException;
 import com.smartskale.sourcing.application.exception.DuplicateApplicationException;
 import com.smartskale.sourcing.application.exception.InvalidApplicationException;
@@ -17,6 +18,7 @@ import com.smartskale.sourcing.requisition.repository.RequisitionRepository;
 import com.smartskale.sourcing.resume.entity.CandidateResume;
 import com.smartskale.sourcing.resume.repository.CandidateResumeRepository;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,17 +34,20 @@ public class ApplicationService {
     private final CandidateProfileRepository candidateRepository;
     private final RequisitionRepository requisitionRepository;
     private final CandidateResumeRepository resumeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ApplicationService(
             CandidateApplicationRepository applicationRepository,
             CandidateProfileRepository candidateRepository,
             RequisitionRepository requisitionRepository,
-            CandidateResumeRepository resumeRepository
+            CandidateResumeRepository resumeRepository,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.applicationRepository = applicationRepository;
         this.candidateRepository = candidateRepository;
         this.requisitionRepository = requisitionRepository;
         this.resumeRepository = resumeRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public ApplicationResponse submit(
@@ -107,9 +112,16 @@ public class ApplicationService {
                         request.privacyConsent()
                 );
 
-        return toResponse(
-                applicationRepository.save(application)
+        CandidateApplication saved =
+                applicationRepository.saveAndFlush(application);
+
+        publishApplicationSubmittedEvent(
+                saved,
+                candidate,
+                requisition
         );
+
+        return toResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -197,6 +209,40 @@ public class ApplicationService {
 
         return toAdminResponse(saved);
     }
+
+    private void publishApplicationSubmittedEvent(
+            CandidateApplication application,
+            CandidateProfile candidate,
+            Requisition requisition
+    ) {
+
+        String candidateName =
+                (
+                        candidate.getFirstName()
+                                + " "
+                                + candidate.getLastName()
+                ).trim();
+
+        ApplicationSubmittedEvent event =
+                new ApplicationSubmittedEvent(
+                        application.getId(),
+                        application.getApplicationReference(),
+
+                        requisition.getId(),
+                        requisition.getRequisitionId(),
+                        requisition.getJobTitle(),
+
+                        candidate.getId(),
+                        candidateName,
+                        candidate.getEmail(),
+
+                        application.getSubmittedAt(),
+                        application.getStatus()
+                );
+
+        eventPublisher.publishEvent(event);
+    }
+
     private CandidateApplication getRequiredApplication(
             UUID applicationId
     ) {
