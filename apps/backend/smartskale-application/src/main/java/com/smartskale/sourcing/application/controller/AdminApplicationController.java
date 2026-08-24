@@ -1,5 +1,7 @@
 package com.smartskale.sourcing.application.controller;
 
+import com.smartskale.sourcing.application.domain.ApplicationStatus;
+import com.smartskale.sourcing.application.dto.AdminApplicationCsvExport;
 import com.smartskale.sourcing.application.dto.AdminApplicationDetailResponse;
 import com.smartskale.sourcing.application.dto.AdminApplicationResponse;
 import com.smartskale.sourcing.application.dto.UpdateApplicationStatusRequest;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
@@ -39,9 +42,22 @@ public class AdminApplicationController {
     }
 
     @GetMapping("/applications")
-    public List<AdminApplicationResponse> listAll() {
+    public List<AdminApplicationResponse> listAll(
+            @RequestParam(required = false)
+            String search,
 
-        return applicationService.listAllAdmin();
+            @RequestParam(required = false)
+            ApplicationStatus status,
+
+            @RequestParam(required = false)
+            UUID requisitionId
+    ) {
+
+        return applicationService.searchAdmin(
+                search,
+                status,
+                requisitionId
+        );
     }
 
     @GetMapping("/requisitions/{requisitionId}/applications")
@@ -52,6 +68,57 @@ public class AdminApplicationController {
         return applicationService.listByRequisition(
                 requisitionId
         );
+    }
+
+    @GetMapping("/requisitions/{requisitionId}/applications/export")
+    public ResponseEntity<byte[]> exportApplications(
+            @PathVariable
+            UUID requisitionId,
+
+            @RequestParam(required = false)
+            String search,
+
+            @RequestParam(required = false)
+            ApplicationStatus status
+    ) {
+
+        AdminApplicationCsvExport export =
+                applicationService
+                        .exportApplicationsCsv(
+                                requisitionId,
+                                search,
+                                status
+                        );
+
+        ContentDisposition disposition =
+                ContentDisposition
+                        .attachment()
+                        .filename(
+                                export.filename(),
+                                StandardCharsets.UTF_8
+                        )
+                        .build();
+
+        return ResponseEntity
+                .ok()
+                .contentType(
+                        MediaType.parseMediaType(
+                                "text/csv;charset=UTF-8"
+                        )
+                )
+                .contentLength(
+                        export.content().length
+                )
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        disposition.toString()
+                )
+                .cacheControl(
+                        CacheControl.noStore()
+                )
+                .body(
+                        export.content()
+                );
     }
 
     @GetMapping("/applications/{applicationId}")
