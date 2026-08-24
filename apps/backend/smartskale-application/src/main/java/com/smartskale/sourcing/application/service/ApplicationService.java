@@ -4,6 +4,7 @@ import com.smartskale.sourcing.application.dto.AdminApplicationCsvExport;
 import com.smartskale.sourcing.application.dto.AdminApplicationDetailResponse;
 import com.smartskale.sourcing.application.dto.AdminApplicationResponse;
 import com.smartskale.sourcing.application.dto.ApplicationResponse;
+import com.smartskale.sourcing.application.dto.CandidateApplicationSummaryResponse;
 import com.smartskale.sourcing.application.dto.SubmitApplicationRequest;
 import com.smartskale.sourcing.application.dto.UpdateApplicationStatusRequest;
 import com.smartskale.sourcing.application.domain.ApplicationStatus;
@@ -139,7 +140,7 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ApplicationResponse> listMine(
+    public List<CandidateApplicationSummaryResponse> listMine(
             String keycloakSubject
     ) {
 
@@ -157,7 +158,7 @@ public class ApplicationService {
                         candidate.getId()
                 )
                 .stream()
-                .map(this::toResponse)
+                .map(this::toCandidateApplicationSummary)
                 .toList();
     }
 
@@ -452,6 +453,39 @@ public class ApplicationService {
         return toAdminResponse(saved);
     }
 
+    private CandidateApplicationSummaryResponse toCandidateApplicationSummary(
+            CandidateApplication application
+    ) {
+
+        Requisition requisition =
+                requisitionRepository
+                        .findById(
+                                application.getRequisitionId()
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Requisition referenced by application does not exist."
+                                )
+                        );
+
+        return new CandidateApplicationSummaryResponse(
+                application.getId(),
+                application.getApplicationReference(),
+                application.getStatus(),
+                application.getSubmittedAt(),
+
+                requisition.getId(),
+                requisition.getRequisitionId(),
+                requisition.getJobTitle(),
+                requisition.getDepartment(),
+                requisition.getLocation(),
+                requisition.getEmploymentType(),
+                requisition.getExperienceRange(),
+                requisition.getStatus(),
+
+                application.getResumeVersion()
+        );
+    }
     private void publishApplicationSubmittedEvent(
             CandidateApplication application,
             CandidateProfile candidate,
