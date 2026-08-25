@@ -13,8 +13,16 @@ import {
 } from './components/layout/PublicLayout'
 
 import {
-  CandidateAccessPage,
-} from './features/auth/pages/CandidateAccessPage'
+  ApplicationConfirmationPage,
+} from './features/candidate/pages/ApplicationConfirmationPage'
+
+import {
+  CandidateApplyPage,
+} from './features/candidate/pages/CandidateApplyPage'
+
+import {
+  MyApplicationsPage,
+} from './features/candidate/pages/MyApplicationsPage'
 
 import {
   ForbiddenPage,
@@ -107,7 +115,31 @@ function App() {
           <Route
             path="/candidate"
             element={
-              <CandidateAccessPage />
+              <Navigate
+                to="/candidate/applications"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="/candidate/applications"
+            element={
+              <MyApplicationsPage />
+            }
+          />
+
+          <Route
+            path="/jobs/:id/apply"
+            element={
+              <CandidateApplyPage />
+            }
+          />
+
+          <Route
+            path="/candidate/applications/:applicationId/confirmation"
+            element={
+              <ApplicationConfirmationPage />
             }
           />
         </Route>

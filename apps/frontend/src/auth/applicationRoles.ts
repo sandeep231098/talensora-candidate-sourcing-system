@@ -68,7 +68,7 @@ export const PORTALS:
     },
     {
       role: 'CANDIDATE',
-      path: '/candidate',
+      path: '/candidate/applications',
       label: 'Candidate Portal',
     },
   ]
