@@ -1,6 +1,7 @@
+import LoginIcon from '@mui/icons-material/Login'
+
 import {
   Alert,
-  Box,
   Button,
   Container,
   Paper,
@@ -8,17 +9,52 @@ import {
 } from '@mui/material'
 
 import {
-  Link as RouterLink,
+  Navigate,
   useSearchParams,
 } from 'react-router-dom'
 
+import { useAuth } from '../../../auth/useAuth'
+import { LoadingState } from '../../../components/common/LoadingState'
+
+const normalizeReturnTo = (
+  value: string | null,
+): string => {
+  if (
+    value &&
+    value.startsWith('/') &&
+    !value.startsWith('//')
+  ) {
+    return value
+  }
+
+  return '/candidate'
+}
+
 export function LoginPlaceholderPage() {
+  const auth = useAuth()
+
   const [searchParams] =
     useSearchParams()
 
   const returnTo =
-    searchParams.get('returnTo') ??
-    '/jobs'
+    normalizeReturnTo(
+      searchParams.get('returnTo')
+    )
+
+  if (!auth.initialized) {
+    return (
+      <LoadingState message="Preparing secure sign in..." />
+    )
+  }
+
+  if (auth.authenticated) {
+    return (
+      <Navigate
+        to={returnTo}
+        replace
+      />
+    )
+  }
 
   return (
     <Container
@@ -30,37 +66,38 @@ export function LoginPlaceholderPage() {
         sx={{ p: 4 }}
       >
         <Typography variant="h4">
-          Candidate sign in
+          Sign in to SmartSkale
         </Typography>
 
         <Typography
           color="text.secondary"
           sx={{ mt: 2 }}
         >
-          Authentication with Keycloak
-          will be connected in the next
-          frontend feature.
+          Your account is securely
+          authenticated through
+          SmartSkale Identity.
         </Typography>
 
         <Alert
           severity="info"
           sx={{ mt: 3 }}
         >
-          The public careers experience
-          remains available without login.
+          You will be redirected to
+          Keycloak to complete sign in.
         </Alert>
 
-        <Box sx={{ mt: 3 }}>
-          <Button
-            component={RouterLink}
-            to={returnTo.startsWith('/jobs')
-              ? '/jobs'
-              : '/jobs'}
-            variant="contained"
-          >
-            Back to jobs
-          </Button>
-        </Box>
+        <Button
+          fullWidth
+          size="large"
+          variant="contained"
+          startIcon={<LoginIcon />}
+          onClick={() =>
+            void auth.login(returnTo)
+          }
+          sx={{ mt: 3 }}
+        >
+          Continue to sign in
+        </Button>
       </Paper>
     </Container>
   )
