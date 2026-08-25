@@ -4,11 +4,49 @@ import {
   Routes,
 } from 'react-router-dom'
 
-import { PublicLayout } from './components/layout/PublicLayout'
+import {
+  ProtectedRoute,
+} from './auth/ProtectedRoute'
 
-import { LoginPlaceholderPage } from './features/auth/pages/LoginPlaceholderPage'
-import { JobDetailPage } from './features/jobs/pages/JobDetailPage'
-import { JobsPage } from './features/jobs/pages/JobsPage'
+import {
+  PublicLayout,
+} from './components/layout/PublicLayout'
+
+import {
+  CandidateAccessPage,
+} from './features/auth/pages/CandidateAccessPage'
+
+import {
+  ForbiddenPage,
+} from './features/auth/pages/ForbiddenPage'
+
+import {
+  LoginPlaceholderPage,
+} from './features/auth/pages/LoginPlaceholderPage'
+
+import {
+  PortalRedirectPage,
+} from './features/auth/pages/PortalRedirectPage'
+
+import {
+  RolePortalPage,
+} from './features/auth/pages/RolePortalPage'
+
+import {
+  RecruiterDashboardPage,
+} from './features/recruiter/pages/RecruiterDashboardPage'
+
+import {
+  RequisitionsPage,
+} from './features/recruiter/pages/RequisitionsPage'
+
+import {
+  JobDetailPage,
+} from './features/jobs/pages/JobDetailPage'
+
+import {
+  JobsPage,
+} from './features/jobs/pages/JobsPage'
 
 function App() {
   return (
@@ -36,8 +74,187 @@ function App() {
 
         <Route
           path="/login"
-          element={<LoginPlaceholderPage />}
+          element={
+            <LoginPlaceholderPage />
+          }
         />
+
+        <Route
+          path="/forbidden"
+          element={<ForbiddenPage />}
+        />
+
+        <Route
+          element={<ProtectedRoute />}
+        >
+          <Route
+            path="/portal"
+            element={
+              <PortalRedirectPage />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'CANDIDATE',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/candidate"
+            element={
+              <CandidateAccessPage />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'HR',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/hr"
+            element={
+              <RolePortalPage
+                title="HR Portal"
+                description="Human Resources workspace for recruiting and candidate operations."
+              />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'RECRUITER',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/recruiter"
+            element={
+              <RecruiterDashboardPage />
+            }
+          />
+
+          <Route
+            path="/recruiter/requisitions"
+            element={
+              <RequisitionsPage />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'ADMIN',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/admin"
+            element={
+              <RolePortalPage
+                title="Admin Portal"
+                description="Administrative workspace for SmartSkale platform operations."
+              />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'HIRING_MANAGER',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/hiring-manager"
+            element={
+              <RolePortalPage
+                title="Hiring Manager Portal"
+                description="Hiring manager workspace for recruitment reviews and decisions."
+              />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'AUDITOR',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/auditor"
+            element={
+              <RolePortalPage
+                title="Audit Portal"
+                description="Read-oriented workspace for audit and compliance activities."
+              />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'ACCOUNTS',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/accounts"
+            element={
+              <RolePortalPage
+                title="Accounts Portal"
+                description="Accounts and finance workspace."
+              />
+            }
+          />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRoles={[
+                'CUSTOMER',
+              ]}
+            />
+          }
+        >
+          <Route
+            path="/customer"
+            element={
+              <RolePortalPage
+                title="Customer Portal"
+                description="Customer workspace for future SmartSkale services."
+              />
+            }
+          />
+        </Route>
 
         <Route
           path="*"
