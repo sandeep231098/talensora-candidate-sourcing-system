@@ -21,6 +21,9 @@ import {
 } from './features/candidate/pages/CandidateApplyPage'
 
 import {
+  CandidateProfilePage,
+} from './features/candidate/pages/CandidateProfilePage'
+import {
   MyApplicationsPage,
 } from './features/candidate/pages/MyApplicationsPage'
 
@@ -116,9 +119,15 @@ function App() {
             path="/candidate"
             element={
               <Navigate
-                to="/candidate/applications"
+                to="/candidate/profile"
                 replace
               />
+            }
+          />
+          <Route
+            path="/candidate/profile"
+            element={
+              <CandidateProfilePage />
             }
           />
 

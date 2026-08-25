@@ -140,6 +140,29 @@ export async function addEducation(
   return response.json()
 }
 
+export async function updateEducation(
+  id: string,
+  request: CandidateEducationRequest,
+  getToken: TokenProvider,
+): Promise<CandidateEducation> {
+  const response =
+    await authenticatedFetch(
+      `/api/v1/candidate/education/${id}`,
+      getToken,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type':
+            'application/json',
+        },
+        body: JSON.stringify(request),
+      },
+    )
+
+  await ensureSuccess(response)
+
+  return response.json()
+}
 export async function deleteEducation(
   id: string,
   getToken: TokenProvider,
@@ -193,6 +216,29 @@ export async function addExperience(
   return response.json()
 }
 
+export async function updateExperience(
+  id: string,
+  request: CandidateExperienceRequest,
+  getToken: TokenProvider,
+): Promise<CandidateExperience> {
+  const response =
+    await authenticatedFetch(
+      `/api/v1/candidate/experience/${id}`,
+      getToken,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type':
+            'application/json',
+        },
+        body: JSON.stringify(request),
+      },
+    )
+
+  await ensureSuccess(response)
+
+  return response.json()
+}
 export async function deleteExperience(
   id: string,
   getToken: TokenProvider,
@@ -253,6 +299,48 @@ export async function uploadResume(
   return response.json()
 }
 
+export async function fetchResumeHistory(
+  getToken: TokenProvider,
+): Promise<ResumeResponse[]> {
+  const response =
+    await authenticatedFetch(
+      '/api/v1/candidate/resume/history',
+      getToken,
+    )
+
+  await ensureSuccess(response)
+
+  return response.json()
+}
+
+export async function downloadCurrentResume(
+  getToken: TokenProvider,
+): Promise<Blob> {
+  const response =
+    await authenticatedFetch(
+      '/api/v1/candidate/resume/download',
+      getToken,
+    )
+
+  await ensureSuccess(response)
+
+  return response.blob()
+}
+
+export async function deleteCurrentResume(
+  getToken: TokenProvider,
+): Promise<void> {
+  const response =
+    await authenticatedFetch(
+      '/api/v1/candidate/resume',
+      getToken,
+      {
+        method: 'DELETE',
+      },
+    )
+
+  await ensureSuccess(response)
+}
 export async function submitApplication(
   request: SubmitApplicationRequest,
   getToken: TokenProvider,
