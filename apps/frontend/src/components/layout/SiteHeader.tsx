@@ -7,20 +7,34 @@ import {
   Typography,
 } from '@mui/material'
 
-import WorkHistoryOutlinedIcon from '@mui/icons-material/WorkHistoryOutlined'
 import LoginIcon from '@mui/icons-material/Login'
+import LogoutIcon from '@mui/icons-material/Logout'
+import WorkHistoryOutlinedIcon from '@mui/icons-material/WorkHistoryOutlined'
 
 import {
   Link as RouterLink,
   useLocation,
 } from 'react-router-dom'
 
+import {
+  getPrimaryPortal,
+} from '../../auth/applicationRoles'
+
+import {
+  useAuth,
+} from '../../auth/useAuth'
+
 export function SiteHeader() {
   const location = useLocation()
+  const auth = useAuth()
 
-  const returnTo = encodeURIComponent(
-    `${location.pathname}${location.search}`
-  )
+  const returnTo =
+    encodeURIComponent(
+      `${location.pathname}${location.search}`
+    )
+
+  const portal =
+    getPrimaryPortal(auth.roles)
 
   return (
     <AppBar
@@ -55,7 +69,9 @@ export function SiteHeader() {
 
             <Typography
               variant="h6"
-              sx={{ fontWeight: 800 }}
+              sx={{
+                fontWeight: 800,
+              }}
             >
               SmartSkale Careers
             </Typography>
@@ -71,14 +87,39 @@ export function SiteHeader() {
             Find Jobs
           </Button>
 
-          <Button
-            component={RouterLink}
-            to={`/login?returnTo=${returnTo}`}
-            variant="contained"
-            startIcon={<LoginIcon />}
-          >
-            Sign in
-          </Button>
+          {auth.initialized &&
+            auth.authenticated &&
+            portal && (
+              <Button
+                component={RouterLink}
+                to={portal.path}
+                color="inherit"
+              >
+                {portal.label}
+              </Button>
+            )}
+
+          {auth.initialized &&
+          auth.authenticated ? (
+            <Button
+              variant="outlined"
+              startIcon={<LogoutIcon />}
+              onClick={() =>
+                void auth.logout()
+              }
+            >
+              Sign out
+            </Button>
+          ) : (
+            <Button
+              component={RouterLink}
+              to={`/login?returnTo=${returnTo}`}
+              variant="contained"
+              startIcon={<LoginIcon />}
+            >
+              Sign in
+            </Button>
+          )}
         </Toolbar>
       </Container>
     </AppBar>
