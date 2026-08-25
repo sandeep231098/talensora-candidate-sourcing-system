@@ -1,5 +1,6 @@
 package com.smartskale.sourcing.notification.listener;
 
+import com.smartskale.sourcing.application.event.ApplicationStatusChangedEvent;
 import com.smartskale.sourcing.application.event.ApplicationSubmittedEvent;
 import com.smartskale.sourcing.notification.domain.NotificationType;
 import com.smartskale.sourcing.notification.service.NotificationService;
@@ -30,13 +31,62 @@ public class ApplicationNotificationListener {
     public void handleApplicationSubmitted(
             ApplicationSubmittedEvent event
     ) {
+
         sendCandidateConfirmation(event);
         sendAdminNotification(event);
+    }
+
+    @TransactionalEventListener(
+            phase = TransactionPhase.AFTER_COMMIT
+    )
+    public void handleApplicationStatusChanged(
+            ApplicationStatusChangedEvent event
+    ) {
+
+        String subject =
+                "Application status updated - "
+                        + event.jobTitle();
+
+        String body = """
+                Hello %s,
+
+                The status of your job application has been updated.
+
+                Application ID: %s
+                Requisition: %s
+                Job Title: %s
+
+                Previous Status: %s
+                Current Status: %s
+
+                Updated At: %s
+
+                You can sign in to SmartSkale to view your applications.
+
+                Regards,
+                SmartSkale Recruitment Team
+                """.formatted(
+                event.candidateName(),
+                event.applicationReference(),
+                event.requisitionNumber(),
+                event.jobTitle(),
+                event.previousStatus(),
+                event.newStatus(),
+                event.changedAt()
+        );
+
+        notificationService.sendEmail(
+                NotificationType.APPLICATION_STATUS_CHANGED,
+                event.candidateEmail(),
+                subject,
+                body
+        );
     }
 
     private void sendCandidateConfirmation(
             ApplicationSubmittedEvent event
     ) {
+
         String subject =
                 "Application submitted - "
                         + event.jobTitle();
@@ -74,6 +124,7 @@ public class ApplicationNotificationListener {
     private void sendAdminNotification(
             ApplicationSubmittedEvent event
     ) {
+
         String subject =
                 "New application received - "
                         + event.requisitionNumber();

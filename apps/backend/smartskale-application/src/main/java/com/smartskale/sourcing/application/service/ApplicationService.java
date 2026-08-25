@@ -10,6 +10,7 @@ import com.smartskale.sourcing.application.dto.UpdateApplicationStatusRequest;
 import com.smartskale.sourcing.application.domain.ApplicationStatus;
 import com.smartskale.sourcing.application.entity.CandidateApplication;
 import com.smartskale.sourcing.application.event.ApplicationSubmittedEvent;
+import com.smartskale.sourcing.application.event.ApplicationStatusChangedEvent;
 import com.smartskale.sourcing.application.exception.ApplicationNotFoundException;
 import com.smartskale.sourcing.application.exception.DuplicateApplicationException;
 import com.smartskale.sourcing.application.exception.InvalidApplicationException;
@@ -443,12 +444,29 @@ public class ApplicationService {
         CandidateApplication application =
                 getRequiredApplication(applicationId);
 
+        ApplicationStatus previousStatus =
+                application.getStatus();
+
+        ApplicationStatus requestedStatus =
+                request.status();
+
+        if (previousStatus == requestedStatus) {
+
+            return toAdminResponse(application);
+        }
+
         application.changeStatus(
-                request.status()
+                requestedStatus
         );
 
         CandidateApplication saved =
-                applicationRepository.saveAndFlush(application);
+                applicationRepository
+                        .saveAndFlush(application);
+
+        publishApplicationStatusChangedEvent(
+                saved,
+                previousStatus
+        );
 
         return toAdminResponse(saved);
     }
@@ -485,6 +503,61 @@ public class ApplicationService {
 
                 application.getResumeVersion()
         );
+    }
+    private void publishApplicationStatusChangedEvent(
+            CandidateApplication application,
+            ApplicationStatus previousStatus
+    ) {
+
+        CandidateProfile candidate =
+                candidateRepository
+                        .findById(
+                                application.getCandidateId()
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Candidate referenced by application does not exist."
+                                )
+                        );
+
+        Requisition requisition =
+                requisitionRepository
+                        .findById(
+                                application.getRequisitionId()
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Requisition referenced by application does not exist."
+                                )
+                        );
+
+        String candidateName =
+                (
+                        candidate.getFirstName()
+                                + " "
+                                + candidate.getLastName()
+                ).trim();
+
+        ApplicationStatusChangedEvent event =
+                new ApplicationStatusChangedEvent(
+                        application.getId(),
+                        application.getApplicationReference(),
+
+                        requisition.getId(),
+                        requisition.getRequisitionId(),
+                        requisition.getJobTitle(),
+
+                        candidate.getId(),
+                        candidateName,
+                        candidate.getEmail(),
+
+                        previousStatus,
+                        application.getStatus(),
+
+                        application.getUpdatedAt()
+                );
+
+        eventPublisher.publishEvent(event);
     }
     private void publishApplicationSubmittedEvent(
             CandidateApplication application,
