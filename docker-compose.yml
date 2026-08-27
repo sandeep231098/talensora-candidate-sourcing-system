@@ -30,7 +30,7 @@ services:
     image: postgres:17-alpine
 
     environment:
-      PGPASSWORD: smartskale_dev
+      PGPASSWORD: root
 
     volumes:
       - ./infrastructure/postgres/create-keycloak-db.sql:/scripts/create-keycloak-db.sql:ro
