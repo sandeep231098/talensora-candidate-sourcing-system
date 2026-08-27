@@ -51,6 +51,9 @@ import {
 } from './features/recruiter/pages/RecruiterDashboardPage'
 
 import {
+  RequisitionApplicationsPage,
+} from './features/recruiter/pages/RequisitionApplicationsPage'
+import {
   RequisitionsPage,
 } from './features/recruiter/pages/RequisitionsPage'
 
@@ -195,6 +198,12 @@ function App() {
             path="/recruiter/applications/:applicationId"
             element={
               <RecruiterApplicationReviewPage />
+            }
+          />
+          <Route
+            path="/recruiter/requisitions/:requisitionId/applications"
+            element={
+              <RequisitionApplicationsPage />
             }
           />
 

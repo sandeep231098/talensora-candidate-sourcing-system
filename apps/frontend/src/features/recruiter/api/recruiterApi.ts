@@ -259,3 +259,117 @@ export async function downloadApplicationResume(
 
   URL.revokeObjectURL(objectUrl)
 }
+export async function fetchRequisitionApplications(
+  requisitionId: string,
+  getToken: TokenProvider,
+): Promise<AdminApplication[]> {
+  const response =
+    await authenticatedFetch(
+      `/api/v1/admin/requisitions/${requisitionId}/applications`,
+      getToken,
+    )
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to load requisition applications. HTTP ${response.status}`
+    )
+  }
+
+  return response.json()
+}
+
+export async function exportRequisitionApplications(
+  requisitionId: string,
+  search: string,
+  status: ApplicationStatus | '',
+  getToken: TokenProvider,
+): Promise<void> {
+  const params =
+    new URLSearchParams()
+
+  const trimmedSearch =
+    search.trim()
+
+  if (trimmedSearch) {
+    params.set(
+      'search',
+      trimmedSearch,
+    )
+  }
+
+  if (status) {
+    params.set(
+      'status',
+      status,
+    )
+  }
+
+  const query =
+    params.toString()
+
+  const endpoint =
+    `/api/v1/admin/requisitions/${requisitionId}/applications/export` +
+    (query ? `?${query}` : '')
+
+  const response =
+    await authenticatedFetch(
+      endpoint,
+      getToken,
+    )
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to export applications. HTTP ${response.status}`
+    )
+  }
+
+  const blob =
+    await response.blob()
+
+  const disposition =
+    response.headers.get(
+      'Content-Disposition'
+    ) ??
+    response.headers.get(
+      'content-disposition'
+    )
+
+  let filename =
+    `applications-${requisitionId}.csv`
+
+  const encodedFilename =
+    disposition?.match(
+      /filename\*=UTF-8''([^;]+)/i
+    )
+
+  const simpleFilename =
+    disposition?.match(
+      /filename="?([^";]+)"?/i
+    )
+
+  if (encodedFilename?.[1]) {
+    filename =
+      decodeURIComponent(
+        encodedFilename[1]
+      )
+  } else if (simpleFilename?.[1]) {
+    filename =
+      simpleFilename[1]
+  }
+
+  const url =
+    URL.createObjectURL(blob)
+
+  const anchor =
+    document.createElement('a')
+
+  anchor.href = url
+  anchor.download = filename
+
+  document.body.appendChild(anchor)
+
+  anchor.click()
+  anchor.remove()
+
+  URL.revokeObjectURL(url)
+}
