@@ -4,6 +4,7 @@ import {
 
 import type {
   AdminApplication,
+  AdminApplicationDetail,
   AdminRequisition,
   ApplicationStatus,
   RequisitionRequest,
@@ -145,6 +146,24 @@ export async function closeAdminRequisition(
   return response.json()
 }
 
+export async function fetchAdminApplicationDetail(
+  applicationId: string,
+  getToken: TokenProvider,
+): Promise<AdminApplicationDetail> {
+  const response =
+    await authenticatedFetch(
+      `/api/v1/admin/applications/${applicationId}`,
+      getToken,
+    )
+
+  if (!response.ok) {
+    throw new Error(
+      `Backend request failed with HTTP ${response.status}`
+    )
+  }
+
+  return response.json()
+}
 export async function updateApplicationStatus(
   applicationId: string,
   status: ApplicationStatus,

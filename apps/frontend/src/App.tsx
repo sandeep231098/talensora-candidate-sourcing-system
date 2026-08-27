@@ -44,6 +44,9 @@ import {
 } from './features/auth/pages/RolePortalPage'
 
 import {
+  RecruiterApplicationReviewPage,
+} from './features/recruiter/pages/RecruiterApplicationReviewPage'
+import {
   RecruiterDashboardPage,
 } from './features/recruiter/pages/RecruiterDashboardPage'
 
@@ -186,6 +189,12 @@ function App() {
             path="/recruiter"
             element={
               <RecruiterDashboardPage />
+            }
+          />
+          <Route
+            path="/recruiter/applications/:applicationId"
+            element={
+              <RecruiterApplicationReviewPage />
             }
           />
 

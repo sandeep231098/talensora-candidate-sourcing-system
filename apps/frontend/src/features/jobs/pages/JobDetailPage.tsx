@@ -34,6 +34,9 @@ import {
 import { ErrorState } from '../../../components/common/ErrorState'
 import { LoadingState } from '../../../components/common/LoadingState'
 
+import {
+  useAuth,
+} from '../../../auth/useAuth'
 import { fetchPublicJob } from '../api/jobsApi'
 
 import type { Job } from '../types/job'
@@ -46,6 +49,7 @@ import {
 export function JobDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const auth = useAuth()
 
   const [job, setJob] =
     useState<Job | null>(null)
@@ -130,6 +134,16 @@ export function JobDetailPage() {
       return
     }
 
+    if (auth.authenticated) {
+      if (auth.hasRole('CANDIDATE')) {
+        navigate(
+          `/jobs/${job.id}/apply`
+        )
+      }
+
+      return
+    }
+
     const returnTo =
       encodeURIComponent(
         `/jobs/${job.id}/apply`
@@ -139,6 +153,14 @@ export function JobDetailPage() {
       `/login?returnTo=${returnTo}`
     )
   }
+
+  const canApply =
+    !auth.authenticated ||
+    auth.hasRole('CANDIDATE')
+
+  const isAuthenticatedNonCandidate =
+    auth.authenticated &&
+    !auth.hasRole('CANDIDATE')
 
   if (!id) {
     return (
@@ -357,16 +379,31 @@ export function JobDetailPage() {
             candidate account to continue
             with the application.
           </Typography>
+          {canApply && (
+            <Button
+              fullWidth
+              size="large"
+              variant="contained"
+              startIcon={
+                <SendOutlinedIcon />
+              }
+              onClick={handleApply}
+            >
+              Apply now
+            </Button>
+          )}
 
-          <Button
-            fullWidth
-            size="large"
-            variant="contained"
-            startIcon={<SendOutlinedIcon />}
-            onClick={handleApply}
-          >
-            Apply now
-          </Button>
+          {isAuthenticatedNonCandidate && (
+            <Button
+              fullWidth
+              size="large"
+              variant="contained"
+              component={RouterLink}
+              to="/portal"
+            >
+              Back to your portal
+            </Button>
+          )}
 
           <Button
             fullWidth
