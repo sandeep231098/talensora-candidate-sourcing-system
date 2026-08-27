@@ -13,6 +13,9 @@ import {
   Typography,
 } from '@mui/material'
 
+import {
+  Link,
+} from 'react-router-dom'
 import type {
   AdminApplication,
   ApplicationStatus,
@@ -143,7 +146,7 @@ export function ApplicationsTable({
             </TableCell>
 
             <TableCell>
-              Resume
+              Actions
             </TableCell>
 
             <TableCell>
@@ -257,7 +260,17 @@ export function ApplicationsTable({
                     )}
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell>                    <Button
+                      component={Link}
+                      to={`/recruiter/applications/${application.id}`}
+                      size="small"
+                      sx={{
+                        mr: 1,
+                      }}
+                    >
+                      Review
+                    </Button>
+
                     <Button
                       size="small"
                       variant="outlined"

@@ -1,3 +1,8 @@
+import type {
+  CandidateEducation,
+  CandidateExperience,
+  CandidateProfile,
+} from '../../candidate/types/candidate'
 export type ApplicationStatus =
   | 'NEW'
   | 'REVIEWED'
@@ -75,4 +80,10 @@ export interface RequisitionRequest {
   jobDescription: string
   maximumSalaryBudget: number | null
   hiringCompletedBy: string | null
+}
+export interface AdminApplicationDetail {
+  application: AdminApplication
+  candidateProfile: CandidateProfile
+  education: CandidateEducation[]
+  workExperience: CandidateExperience[]
 }
