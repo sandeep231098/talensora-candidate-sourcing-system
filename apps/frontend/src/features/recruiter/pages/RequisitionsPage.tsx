@@ -881,12 +881,7 @@ export function RequisitionsPage() {
                               component={
                                 RouterLink
                               }
-                              to={
-                                `/recruiter?search=${encodeURIComponent(
-                                  requisition
-                                    .requisitionId
-                                )}`
-                              }
+                              to={`/recruiter/requisitions/${requisition.id}/applications`}
                             >
                               Applications
                             </Button>
