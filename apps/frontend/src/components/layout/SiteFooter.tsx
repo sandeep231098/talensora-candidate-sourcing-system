@@ -30,7 +30,7 @@ export function SiteFooter() {
           variant="body2"
           color="text.secondary"
         >
-          © {new Date().getFullYear()} SmartSkale
+          © {new Date().getFullYear()} Talensora
         </Typography>
 
         <Typography

@@ -229,7 +229,7 @@ function App() {
             element={
               <RolePortalPage
                 title="Admin Portal"
-                description="Administrative workspace for SmartSkale platform operations."
+                description="Administrative workspace for Talensora platform operations."
               />
             }
           />
@@ -309,7 +309,7 @@ function App() {
             element={
               <RolePortalPage
                 title="Customer Portal"
-                description="Customer workspace for future SmartSkale services."
+                description="Customer workspace for future Talensora services."
               />
             }
           />

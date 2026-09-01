@@ -15,12 +15,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.smartskale</groupId>
-    <artifactId>smartskale-backend</artifactId>
+    <groupId>com.talensora</groupId>
+    <artifactId>talensora-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>SmartSkale Candidate Sourcing Backend</name>
+    <name>Talensora Candidate Sourcing Backend</name>
 
     <properties>
         <java.version>21</java.version>
@@ -29,23 +29,23 @@
 
     <modules>
 
-        <module>smartskale-common</module>
+        <module>talensora-common</module>
 
-        <module>smartskale-security</module>
+        <module>talensora-security</module>
 
-        <module>smartskale-auth</module>
+        <module>talensora-auth</module>
 
-        <module>smartskale-requisition</module>
+        <module>talensora-requisition</module>
 
-        <module>smartskale-candidate</module>
+        <module>talensora-candidate</module>
 
-        <module>smartskale-resume</module>
+        <module>talensora-resume</module>
 
-        <module>smartskale-application</module>
+        <module>talensora-application</module>
 
-        <module>smartskale-notification</module>
+        <module>talensora-notification</module>
 
-        <module>smartskale-api</module>
+        <module>talensora-api</module>
 
     </modules>
 

@@ -66,7 +66,7 @@ export function LoginPlaceholderPage() {
         sx={{ p: 4 }}
       >
         <Typography variant="h4">
-          Sign in to SmartSkale
+          Sign in to Talensora
         </Typography>
 
         <Typography
@@ -75,7 +75,7 @@ export function LoginPlaceholderPage() {
         >
           Your account is securely
           authenticated through
-          SmartSkale Identity.
+          Talensora Identity.
         </Typography>
 
         <Alert

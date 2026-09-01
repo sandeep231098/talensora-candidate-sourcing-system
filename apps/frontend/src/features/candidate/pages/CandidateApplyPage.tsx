@@ -1968,7 +1968,7 @@ export function CandidateApplyPage() {
                   }
                 />
               }
-              label="I consent to SmartSkale processing my application data for recruitment."
+              label="I consent to Talensora processing my application data for recruitment."
             />
 
             <Stack
