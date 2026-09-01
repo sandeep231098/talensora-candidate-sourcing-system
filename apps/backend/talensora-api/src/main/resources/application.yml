@@ -1,12 +1,12 @@
 spring:
 
   application:
-    name: smartskale-candidate-sourcing-api
+    name: talensora-candidate-sourcing-api
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/smartskale_candidate_db}
-    username: ${DB_USERNAME:smartskale}
-    password: ${DB_PASSWORD:smartskale_dev}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/talensora_candidate_db}
+    username: ${DB_USERNAME:talensora}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -29,7 +29,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/smartskale}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/talensora}
 
 
 server:

@@ -140,7 +140,7 @@ export function JobsPage() {
         } catch {
           if (!cancelled) {
             setError(
-              'Unable to load jobs. Please make sure the SmartSkale backend is running.'
+              'Unable to load jobs. Please make sure the Talensora backend is running.'
             )
           }
         } finally {
@@ -219,7 +219,7 @@ export function JobsPage() {
             variant="overline"
             sx={{ opacity: 0.8 }}
           >
-            SmartSkale Careers
+            Talensora Careers
           </Typography>
 
           <Typography

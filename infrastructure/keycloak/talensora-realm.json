@@ -1,7 +1,7 @@
 {
-  "realm": "smartskale",
+  "realm": "talensora",
   "enabled": true,
-  "displayName": "SmartSkale Candidate Sourcing System",
+  "displayName": "Talensora Candidate Sourcing System",
 
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
@@ -31,8 +31,8 @@
 
   "clients": [
     {
-      "clientId": "smartskale-web",
-      "name": "SmartSkale Web Application",
+      "clientId": "talensora-web",
+      "name": "Talensora Web Application",
       "enabled": true,
       "protocol": "openid-connect",
 
