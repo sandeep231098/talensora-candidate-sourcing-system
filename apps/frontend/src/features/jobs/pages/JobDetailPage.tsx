@@ -104,7 +104,7 @@ export function JobDetailPage() {
       if (navigator.share) {
         await navigator.share({
           title: job.jobTitle,
-          text: `${job.jobTitle} at SmartSkale`,
+          text: `${job.jobTitle} at Talensora`,
           url,
         })
 

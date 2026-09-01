@@ -70,7 +70,7 @@ export function RolePortalPage({
           </Typography>
 
           <Typography>
-            <strong>SmartSkale roles:</strong>
+            <strong>Talensora roles:</strong>
           </Typography>
 
           <Stack

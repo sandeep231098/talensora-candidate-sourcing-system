@@ -73,7 +73,7 @@ export function SiteHeader() {
                 fontWeight: 800,
               }}
             >
-              SmartSkale Careers
+              Talensora Careers
             </Typography>
           </Box>
 

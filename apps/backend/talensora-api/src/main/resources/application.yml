@@ -1,0 +1,49 @@
+spring:
+
+  application:
+    name: talensora-candidate-sourcing-api
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/talensora_candidate_db}
+    username: ${DB_USERNAME:talensora}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+
+    hibernate:
+      ddl-auto: validate
+
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+    locations:
+      - classpath:db/migration
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/talensora}
+
+
+server:
+  port: ${SERVER_PORT:9093}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+
+  endpoint:
+    health:
+      show-details: always

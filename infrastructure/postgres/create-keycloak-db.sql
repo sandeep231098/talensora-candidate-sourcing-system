@@ -1,4 +1,4 @@
-SELECT 'CREATE DATABASE keycloak OWNER smartskale'
+SELECT 'CREATE DATABASE keycloak OWNER talensora'
 WHERE NOT EXISTS (
     SELECT
     FROM pg_database

@@ -506,7 +506,7 @@ export function RequisitionsPage() {
             }}
           >
             Create, edit, publish and
-            close SmartSkale job
+            close Talensora job
             requisitions.
           </Typography>
         </Box>

@@ -1,12 +1,14 @@
+name: talensora-candidate-sourcing-system
+
 services:
 
   postgres:
     image: postgres:17-alpine
 
     environment:
-      POSTGRES_DB: smartskale_candidate_db
-      POSTGRES_USER: smartskale
-      POSTGRES_PASSWORD: smartskale_dev
+      POSTGRES_DB: talensora_candidate_db
+      POSTGRES_USER: talensora
+      POSTGRES_PASSWORD: ${TALENSORA_DB_PASSWORD}
 
     ports:
       - "5433:5432"
@@ -17,7 +19,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - pg_isready -U smartskale -d smartskale_candidate_db
+        - pg_isready -U talensora -d talensora_candidate_db
       interval: 5s
       timeout: 5s
       retries: 10
@@ -30,7 +32,7 @@ services:
     image: postgres:17-alpine
 
     environment:
-      PGPASSWORD: root
+      PGPASSWORD: ${TALENSORA_DB_PASSWORD}
 
     volumes:
       - ./infrastructure/postgres/create-keycloak-db.sql:/scripts/create-keycloak-db.sql:ro
@@ -38,7 +40,7 @@ services:
     command:
       - sh
       - -c
-      - psql -h postgres -U smartskale -d postgres -f /scripts/create-keycloak-db.sql
+      - psql -h postgres -U talensora -d postgres -f /scripts/create-keycloak-db.sql
 
     depends_on:
       postgres:
@@ -57,8 +59,8 @@ services:
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: smartskale
-      KC_DB_PASSWORD: smartskale_dev
+      KC_DB_USERNAME: talensora
+      KC_DB_PASSWORD: ${TALENSORA_DB_PASSWORD}
 
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
@@ -70,7 +72,7 @@ services:
       - "8180:8080"
 
     volumes:
-      - ./infrastructure/keycloak/smartskale-realm.json:/opt/keycloak/data/import/smartskale-realm.json:ro
+      - ./infrastructure/keycloak/talensora-realm.json:/opt/keycloak/data/import/talensora-realm.json:ro
 
     depends_on:
       keycloak-db-init:
@@ -81,3 +83,5 @@ services:
 
 volumes:
   postgres_data:
+    external: true
+    name: talensora-candidate-sourcing-system_postgres_data

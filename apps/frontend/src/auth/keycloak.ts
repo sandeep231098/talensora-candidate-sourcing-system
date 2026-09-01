@@ -2,8 +2,8 @@ import Keycloak from 'keycloak-js'
 
 export const keycloak = new Keycloak({
   url: 'http://localhost:8180',
-  realm: 'smartskale',
-  clientId: 'smartskale-web',
+  realm: 'talensora',
+  clientId: 'talensora-web',
 })
 
 let initializationPromise: Promise<boolean> | null = null
