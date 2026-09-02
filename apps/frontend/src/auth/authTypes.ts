@@ -19,6 +19,10 @@ export interface AuthContextValue {
     returnTo?: string
   ) => Promise<void>
 
+  register: (
+    returnTo?: string
+  ) => Promise<void>
+
   logout: () => Promise<void>
 
   hasRole: (
