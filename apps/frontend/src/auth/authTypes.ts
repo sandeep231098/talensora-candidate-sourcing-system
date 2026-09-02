@@ -15,6 +15,10 @@ export interface AuthContextValue {
     returnTo?: string
   ) => Promise<void>
 
+  loginWithGoogle: (
+    returnTo?: string
+  ) => Promise<void>
+
   logout: () => Promise<void>
 
   hasRole: (
