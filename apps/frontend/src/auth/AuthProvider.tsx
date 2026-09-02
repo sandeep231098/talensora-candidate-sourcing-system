@@ -215,6 +215,19 @@ export function AuthProvider({
       []
     )
 
+  const register =
+    useCallback(
+      async (
+        returnTo = '/candidate'
+      ) => {
+        await keycloak.register({
+          redirectUri:
+            `${window.location.origin}${returnTo}`,
+        })
+      },
+      []
+    )
+
   const logout =
     useCallback(
       async () => {
@@ -266,6 +279,7 @@ export function AuthProvider({
         roles,
         login,
         loginWithGoogle,
+        register,
         logout,
         hasRole,
         getValidToken,
@@ -277,6 +291,7 @@ export function AuthProvider({
         roles,
         login,
         loginWithGoogle,
+        register,
         logout,
         hasRole,
         getValidToken,

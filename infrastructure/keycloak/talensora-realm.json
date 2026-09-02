@@ -79,18 +79,9 @@
                                              }
                               }
                           ],
-    "identityProviderMappers":  [
-                                    {
-                                        "name":  "Google Candidate Group",
-                                        "identityProviderAlias":  "google",
-                                        "identityProviderMapper":  "oidc-hardcoded-group-idp-mapper",
-                                        "config":  {
-                                                       "syncMode":  "INHERIT",
-                                                       "groupType":  "REALM",
-                                                       "group":  "/external/candidates"
-                                                   }
-                                    }
-                                ],
+    "defaultGroups":  [
+                           "/external/candidates"
+                       ],
     "groups":  [
                    {
                        "name":  "external",

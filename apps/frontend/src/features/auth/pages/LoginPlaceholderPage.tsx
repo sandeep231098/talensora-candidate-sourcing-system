@@ -1,5 +1,6 @@
 import GoogleIcon from '@mui/icons-material/Google'
 import LoginIcon from '@mui/icons-material/Login'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
 
 import {
   Alert,
@@ -117,6 +118,24 @@ export function LoginPlaceholderPage() {
           }
         >
           Continue to sign in
+        </Button>
+
+        <Divider sx={{ my: 3 }}>
+          NEW TO TALENSORA?
+        </Divider>
+
+        <Button
+          fullWidth
+          size="large"
+          variant="outlined"
+          startIcon={<PersonAddIcon />}
+          onClick={() =>
+            void auth.register(
+              returnTo
+            )
+          }
+        >
+          Create candidate account
         </Button>
       </Paper>
     </Container>

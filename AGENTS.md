@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-020 (Talensora rebrand) is complete and released. Current work is **SSCS-021 Google SSO**; remain on `feature/SSCS-021-google-sso` until fully validated and released. Candidate Google SSO works end-to-end through Bio-Data, Education, Experience/resume, application, and confirmation. Mobile numbers currently require international form such as `+919876543210`. Recruiter Google testing is postponed until a second Gmail test identity is available.
+SSCS-021 (Google SSO) is released. Current work is **SSCS-022 registration and candidate identity provisioning**. Candidate self-registration is handled by Keycloak. All public candidate identities receive `/external/candidates` -> `CANDIDATE`; no internal group or privileged role may be public or assigned by default.
 
-After SSCS-021, planned work is SSCS-022 registration/identity provisioning, SSCS-023 password reset, SSCS-024 email verification/SMTP, validation and UX cleanup, recruiter/admin provisioning, notification/security/error hardening, UI improvements, S3 resume storage, automated E2E/API tests, and AWS staging deployment.
+Email verification remains SSCS-024. Until then, password-based candidates cannot complete profile creation because the API requires a verified email claim. Controlled internal provisioning must remove `/external/candidates` before assigning privileged internal groups where applicable.
