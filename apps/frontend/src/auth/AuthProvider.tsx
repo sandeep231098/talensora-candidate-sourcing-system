@@ -201,6 +201,20 @@ export function AuthProvider({
       []
     )
 
+  const loginWithGoogle =
+    useCallback(
+      async (
+        returnTo = '/candidate'
+      ) => {
+        await keycloak.login({
+          redirectUri:
+            `${window.location.origin}${returnTo}`,
+          idpHint: 'google',
+        })
+      },
+      []
+    )
+
   const logout =
     useCallback(
       async () => {
@@ -251,6 +265,7 @@ export function AuthProvider({
         user,
         roles,
         login,
+        loginWithGoogle,
         logout,
         hasRole,
         getValidToken,
@@ -261,6 +276,7 @@ export function AuthProvider({
         user,
         roles,
         login,
+        loginWithGoogle,
         logout,
         hasRole,
         getValidToken,

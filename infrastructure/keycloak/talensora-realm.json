@@ -1,57 +1,149 @@
 {
-  "realm": "talensora",
-  "enabled": true,
-  "displayName": "Talensora Candidate Sourcing System",
-
-  "registrationAllowed": true,
-  "registrationEmailAsUsername": true,
-  "loginWithEmailAllowed": true,
-  "duplicateEmailsAllowed": false,
-
-  "resetPasswordAllowed": true,
-  "rememberMe": true,
-  "verifyEmail": false,
-
-  "roles": {
-    "realm": [
-      {
-        "name": "CANDIDATE",
-        "description": "External candidate"
-      },
-      {
-        "name": "RECRUITER",
-        "description": "Internal recruiter"
-      },
-      {
-        "name": "ADMIN",
-        "description": "System administrator"
-      }
-    ]
-  },
-
-  "clients": [
-    {
-      "clientId": "talensora-web",
-      "name": "Talensora Web Application",
-      "enabled": true,
-      "protocol": "openid-connect",
-
-      "publicClient": true,
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-
-      "redirectUris": [
-        "http://localhost:5173/*"
-      ],
-
-      "webOrigins": [
-        "http://localhost:5173"
-      ],
-
-      "attributes": {
-        "pkce.code.challenge.method": "S256"
-      }
-    }
-  ]
+    "realm":  "talensora",
+    "enabled":  true,
+    "displayName":  "Talensora Candidate Sourcing System",
+    "registrationAllowed":  true,
+    "registrationEmailAsUsername":  true,
+    "loginWithEmailAllowed":  true,
+    "duplicateEmailsAllowed":  false,
+    "resetPasswordAllowed":  true,
+    "rememberMe":  true,
+    "verifyEmail":  false,
+    "roles":  {
+                  "realm":  [
+                                {
+                                    "name":  "CANDIDATE",
+                                    "description":  "External candidate"
+                                },
+                                {
+                                    "name":  "RECRUITER",
+                                    "description":  "Internal recruiter"
+                                },
+                                {
+                                    "name":  "ADMIN",
+                                    "description":  "System administrator"
+                                },
+                                {
+                                    "name":  "HR",
+                                    "description":  "Human Resources user"
+                                },
+                                {
+                                    "name":  "HIRING_MANAGER",
+                                    "description":  "Hiring manager"
+                                },
+                                {
+                                    "name":  "AUDITOR",
+                                    "description":  "Read-only audit user"
+                                },
+                                {
+                                    "name":  "ACCOUNTS",
+                                    "description":  "Accounts and finance user"
+                                }
+                            ]
+              },
+    "clients":  [
+                    {
+                        "clientId":  "talensora-web",
+                        "name":  "Talensora Web Application",
+                        "enabled":  true,
+                        "protocol":  "openid-connect",
+                        "publicClient":  true,
+                        "standardFlowEnabled":  true,
+                        "implicitFlowEnabled":  false,
+                        "directAccessGrantsEnabled":  false,
+                        "redirectUris":  [
+                                             "http://localhost:5173/*"
+                                         ],
+                        "webOrigins":  [
+                                           "http://localhost:5173"
+                                       ],
+                        "attributes":  {
+                                           "pkce.code.challenge.method":  "S256"
+                                       }
+                    }
+                ],
+    "identityProviders":  [
+                              {
+                                  "alias":  "google",
+                                  "displayName":  "Google",
+                                  "providerId":  "google",
+                                  "enabled":  true,
+                                  "trustEmail":  true,
+                                  "storeToken":  false,
+                                  "linkOnly":  false,
+                                  "hideOnLogin":  false,
+                                  "config":  {
+                                                 "clientId":  "${GOOGLE_CLIENT_ID}",
+                                                 "clientSecret":  "${GOOGLE_CLIENT_SECRET}",
+                                                 "syncMode":  "IMPORT"
+                                             }
+                              }
+                          ],
+    "identityProviderMappers":  [
+                                    {
+                                        "name":  "Google Candidate Group",
+                                        "identityProviderAlias":  "google",
+                                        "identityProviderMapper":  "oidc-hardcoded-group-idp-mapper",
+                                        "config":  {
+                                                       "syncMode":  "INHERIT",
+                                                       "groupType":  "REALM",
+                                                       "group":  "/external/candidates"
+                                                   }
+                                    }
+                                ],
+    "groups":  [
+                   {
+                       "name":  "external",
+                       "subGroups":  [
+                                         {
+                                             "name":  "candidates",
+                                             "realmRoles":  [
+                                                                "CANDIDATE"
+                                                            ]
+                                         }
+                                     ]
+                   },
+                   {
+                       "name":  "internal",
+                       "subGroups":  [
+                                         {
+                                             "name":  "admins",
+                                             "realmRoles":  [
+                                                                "ADMIN"
+                                                            ]
+                                         },
+                                         {
+                                             "name":  "hr",
+                                             "realmRoles":  [
+                                                                "HR",
+                                                                "RECRUITER"
+                                                            ]
+                                         },
+                                         {
+                                             "name":  "recruiters",
+                                             "realmRoles":  [
+                                                                "RECRUITER"
+                                                            ]
+                                         },
+                                         {
+                                             "name":  "hiring-managers",
+                                             "realmRoles":  [
+                                                                "HIRING_MANAGER"
+                                                            ]
+                                         },
+                                         {
+                                             "name":  "auditors",
+                                             "realmRoles":  [
+                                                                "AUDITOR"
+                                                            ]
+                                         },
+                                         {
+                                             "name":  "accounts",
+                                             "realmRoles":  [
+                                                                "ACCOUNTS"
+                                                            ]
+                                         }
+                                     ]
+                   }
+               ]
 }

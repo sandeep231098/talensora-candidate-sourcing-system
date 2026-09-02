@@ -1,9 +1,11 @@
+import GoogleIcon from '@mui/icons-material/Google'
 import LoginIcon from '@mui/icons-material/Login'
 
 import {
   Alert,
   Button,
   Container,
+  Divider,
   Paper,
   Typography,
 } from '@mui/material'
@@ -73,28 +75,46 @@ export function LoginPlaceholderPage() {
           color="text.secondary"
           sx={{ mt: 2 }}
         >
-          Your account is securely
-          authenticated through
-          Talensora Identity.
+          Sign in securely using your
+          Talensora account or Google.
         </Typography>
 
         <Alert
           severity="info"
           sx={{ mt: 3 }}
         >
-          You will be redirected to
-          Keycloak to complete sign in.
+          Authentication is securely
+          managed through Talensora
+          Identity.
         </Alert>
 
         <Button
           fullWidth
           size="large"
           variant="contained"
+          startIcon={<GoogleIcon />}
+          onClick={() =>
+            void auth.loginWithGoogle(
+              returnTo
+            )
+          }
+          sx={{ mt: 3 }}
+        >
+          Continue with Google
+        </Button>
+
+        <Divider sx={{ my: 3 }}>
+          OR
+        </Divider>
+
+        <Button
+          fullWidth
+          size="large"
+          variant="outlined"
           startIcon={<LoginIcon />}
           onClick={() =>
             void auth.login(returnTo)
           }
-          sx={{ mt: 3 }}
         >
           Continue to sign in
         </Button>
