@@ -1,0 +1,70 @@
+name: Configuration CI
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "docker-compose.yml"
+      - "infrastructure/**"
+      - ".github/workflows/config-ci.yml"
+
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths:
+      - "docker-compose.yml"
+      - "infrastructure/**"
+      - ".github/workflows/config-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  configuration:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate Docker Compose
+        env:
+          TALENSORA_DB_PASSWORD: ci-placeholder
+          GOOGLE_CLIENT_ID: ci-placeholder
+          GOOGLE_CLIENT_SECRET: ci-placeholder
+          KC_BOOTSTRAP_ADMIN_PASSWORD: ci-placeholder
+        run: docker compose config --quiet
+
+      - name: Validate Keycloak realm JSON
+        run: python -m json.tool infrastructure/keycloak/talensora-realm.json > /dev/null
+
+      - name: Reject tracked environment files
+        shell: bash
+        run: |
+          tracked_env_files="$({ git ls-files | grep -E '(^|/)\.env($|\.)' || true; } | grep -Ev '(^|/)\.env\.example$' || true)"
+
+          if [[ -n "$tracked_env_files" ]]; then
+            echo "Tracked environment files detected:"
+            echo "$tracked_env_files"
+            exit 1
+          fi
+
+      - name: Check changed lines
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git diff --check "$BASE_SHA" "$HEAD_SHA"
+          else
+            git diff --check "$BEFORE_SHA" "$HEAD_SHA"
+          fi

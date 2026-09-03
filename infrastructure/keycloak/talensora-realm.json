@@ -8,7 +8,15 @@
     "duplicateEmailsAllowed":  false,
     "resetPasswordAllowed":  true,
     "rememberMe":  true,
-    "verifyEmail":  false,
+    "verifyEmail":  true,
+    "smtpServer":  {
+                       "host":  "mailpit",
+                       "port":  "1025",
+                       "from":  "no-reply@talensora.local",
+                       "auth":  "false",
+                       "ssl":  "false",
+                       "starttls":  "false"
+                   },
     "roles":  {
                   "realm":  [
                                 {

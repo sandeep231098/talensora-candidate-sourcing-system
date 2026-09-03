@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-021 (Google SSO) is released. Current work is **SSCS-022 registration and candidate identity provisioning**. Candidate self-registration is handled by Keycloak. All public candidate identities receive `/external/candidates` -> `CANDIDATE`; no internal group or privileged role may be public or assigned by default.
+SSCS-023 (Keycloak-native forgot/reset password) is complete. Current work is **SSCS-024 email verification**, pending live validation. Local Keycloak email delivery uses Compose-managed Mailpit. Password candidates must verify their email before accessing the candidate profile flow.
 
-Email verification remains SSCS-024. Until then, password-based candidates cannot complete profile creation because the API requires a verified email claim. Controlled internal provisioning must remove `/external/candidates` before assigning privileged internal groups where applicable.
+Google login remains managed through Google and Keycloak. Talensora has no custom password handling, reset token, verification page, or verification-token system.
