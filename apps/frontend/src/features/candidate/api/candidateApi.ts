@@ -23,10 +23,38 @@ const errorMessage = async (
   response: Response,
 ): Promise<string> => {
   try {
-    const body = await response.json()
+    const body: unknown =
+      await response.json()
 
     if (
-      typeof body?.message === 'string'
+      body &&
+      typeof body === 'object' &&
+      'fieldErrors' in body &&
+      body.fieldErrors &&
+      typeof body.fieldErrors ===
+        'object'
+    ) {
+      const fieldMessages =
+        Object.values(
+          body.fieldErrors
+        ).filter(
+          (value): value is string =>
+            typeof value === 'string' &&
+            value.trim().length > 0
+        )
+
+      if (fieldMessages.length > 0) {
+        return [
+          ...new Set(fieldMessages),
+        ].join(' ')
+      }
+    }
+
+    if (
+      body &&
+      typeof body === 'object' &&
+      'message' in body &&
+      typeof body.message === 'string'
     ) {
       return body.message
     }
