@@ -23,6 +23,10 @@ import {
 } from '../../../auth/useAuth'
 
 import {
+  LoadingState,
+} from '../../../components/common/LoadingState'
+
+import {
   fetchMyApplications,
 } from '../api/candidateApi'
 
@@ -66,6 +70,14 @@ export function ApplicationConfirmationPage() {
     null
   )
 
+  const [
+    restoring,
+    setRestoring,
+  ] = useState(
+    !state?.application &&
+      Boolean(applicationId)
+  )
+
   useEffect(() => {
     if (
       state?.application ||
@@ -96,6 +108,12 @@ export function ApplicationConfirmationPage() {
           setSummary(
             match ?? null
           )
+
+          if (!match) {
+            setError(
+              'This application confirmation is unavailable. Open My Applications to view your submitted applications.'
+            )
+          }
         }
       )
       .catch(
@@ -109,6 +127,11 @@ export function ApplicationConfirmationPage() {
           }
         }
       )
+      .finally(() => {
+        if (active) {
+          setRestoring(false)
+        }
+      })
 
     return () => {
       active = false
@@ -137,6 +160,20 @@ export function ApplicationConfirmationPage() {
     state?.job?.jobTitle ??
     summary?.jobTitle
 
+  const confirmationAvailable =
+    Boolean(
+      reference &&
+      status &&
+      submittedAt &&
+      jobTitle
+    )
+
+  if (restoring) {
+    return (
+      <LoadingState message="Restoring application confirmation..." />
+    )
+  }
+
   return (
     <Container
       maxWidth="md"
@@ -151,13 +188,15 @@ export function ApplicationConfirmationPage() {
           },
         }}
       >
-        <Alert
-          severity="success"
-          sx={{ mb: 3 }}
-        >
-          Your application was submitted
-          successfully.
-        </Alert>
+        {confirmationAvailable && (
+          <Alert
+            severity="success"
+            sx={{ mb: 3 }}
+          >
+            Your application was submitted
+            successfully.
+          </Alert>
+        )}
 
         <Typography
           variant="h4"
@@ -166,55 +205,54 @@ export function ApplicationConfirmationPage() {
           Application Confirmed
         </Typography>
 
-        {error && (
+        {!confirmationAvailable && (
           <Alert
-            severity="warning"
+            severity="error"
             sx={{ mt: 3 }}
           >
-            {error}
+            {error ??
+              'This application confirmation is unavailable. Open My Applications to view your submitted applications.'}
           </Alert>
         )}
 
-        <Stack
-          sx={{
-            gap: 1.5,
-            mt: 4,
-          }}
-        >
-          <Typography>
-            <strong>
-              Application ID:
-            </strong>{' '}
-            {reference ??
-              applicationId}
-          </Typography>
+        {confirmationAvailable && (
+          <Stack
+            sx={{
+              gap: 1.5,
+              mt: 4,
+            }}
+          >
+            <Typography>
+              <strong>
+                Application reference:
+              </strong>{' '}
+              {reference}
+            </Typography>
 
-          <Typography>
-            <strong>
-              Job:
-            </strong>{' '}
-            {jobTitle ??
-              'Submitted application'}
-          </Typography>
+            <Typography>
+              <strong>
+                Job:
+              </strong>{' '}
+              {jobTitle}
+            </Typography>
 
-          <Typography>
-            <strong>
-              Status:
-            </strong>{' '}
-            {status ?? 'NEW'}
-          </Typography>
+            <Typography>
+              <strong>
+                Status:
+              </strong>{' '}
+              {status}
+            </Typography>
 
-          {submittedAt && (
             <Typography>
               <strong>
                 Submitted:
               </strong>{' '}
               {new Date(
-                submittedAt
+                submittedAt ?? ''
               ).toLocaleString()}
             </Typography>
-          )}
-        </Stack>
+          </Stack>
+        )}
 
         <Stack
           direction={{
