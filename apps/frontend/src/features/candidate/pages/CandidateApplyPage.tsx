@@ -62,6 +62,12 @@ import type {
   ResumeResponse,
 } from '../types/candidate'
 
+import {
+  currentLocalDate,
+  isValidMobileNumber,
+  MOBILE_NUMBER_HELPER_TEXT,
+} from '../utils/candidateValidation'
+
 const steps = [
   'Bio-Data',
   'Education',
@@ -399,6 +405,30 @@ export function CandidateApplyPage() {
         return
       }
 
+      if (
+        !isValidMobileNumber(
+          profileForm.mobileNumber
+        )
+      ) {
+        setError(
+          'Enter a valid mobile number with its country code.'
+        )
+
+        return
+      }
+
+      if (
+        profileForm.dateOfBirth &&
+        profileForm.dateOfBirth >=
+          currentLocalDate()
+      ) {
+        setError(
+          'Date of birth must be in the past.'
+        )
+
+        return
+      }
+
       setSaving(true)
       setError(null)
 
@@ -472,6 +502,20 @@ export function CandidateApplyPage() {
       ) {
         setError(
           'Degree, institution and year are required.'
+        )
+
+        return
+      }
+
+      const currentYear =
+        new Date().getFullYear()
+
+      if (
+        year < 1900 ||
+        year > currentYear
+      ) {
+        setError(
+          'Year of passing must be between 1900 and the current year.'
         )
 
         return
@@ -581,6 +625,24 @@ export function CandidateApplyPage() {
       ) {
         setError(
           'Employer, job title and start date are required.'
+        )
+
+        return
+      }
+
+      const today = currentLocalDate()
+
+      if (
+        experienceForm.startDate >
+          today ||
+        (
+          experienceForm.endDate &&
+          experienceForm.endDate >
+            today
+        )
+      ) {
+        setError(
+          'Employment dates cannot be in the future.'
         )
 
         return
@@ -1030,8 +1092,26 @@ export function CandidateApplyPage() {
 
               <TextField
                 required
+                id="candidate-application-mobile-number"
+                name="mobileNumber"
                 label="Mobile Number"
                 placeholder="+919876543210"
+                error={
+                  profileForm.mobileNumber
+                    .trim().length > 0 &&
+                  !isValidMobileNumber(
+                    profileForm.mobileNumber
+                  )
+                }
+                helperText={
+                  profileForm.mobileNumber
+                    .trim().length > 0 &&
+                  !isValidMobileNumber(
+                    profileForm.mobileNumber
+                  )
+                    ? 'Enter a valid international mobile number.'
+                    : MOBILE_NUMBER_HELPER_TEXT
+                }
                 value={
                   profileForm.mobileNumber
                 }
@@ -1047,6 +1127,8 @@ export function CandidateApplyPage() {
               />
 
               <TextField
+                id="candidate-application-date-of-birth"
+                name="dateOfBirth"
                 type="date"
                 label="Date of Birth"
                 value={
@@ -1062,6 +1144,9 @@ export function CandidateApplyPage() {
                   )
                 }
                 slotProps={{
+                  htmlInput: {
+                    max: currentLocalDate(),
+                  },
                   inputLabel: {
                     shrink: true,
                   },
@@ -1363,6 +1448,8 @@ export function CandidateApplyPage() {
 
               <TextField
                 required
+                id="candidate-application-education-year"
+                name="yearOfPassing"
                 type="number"
                 label="Year of Passing"
                 value={
@@ -1378,6 +1465,13 @@ export function CandidateApplyPage() {
                     })
                   )
                 }
+                slotProps={{
+                  htmlInput: {
+                    min: 1900,
+                    max: new Date()
+                      .getFullYear(),
+                  },
+                }}
               />
 
               <TextField
@@ -1599,6 +1693,8 @@ export function CandidateApplyPage() {
 
                   <TextField
                     required
+                    id="candidate-application-experience-start-date"
+                    name="startDate"
                     type="date"
                     label="Start Date"
                     value={
@@ -1616,6 +1712,9 @@ export function CandidateApplyPage() {
                       )
                     }
                     slotProps={{
+                      htmlInput: {
+                        max: currentLocalDate(),
+                      },
                       inputLabel: {
                         shrink: true,
                       },
@@ -1623,6 +1722,8 @@ export function CandidateApplyPage() {
                   />
 
                   <TextField
+                    id="candidate-application-experience-end-date"
+                    name="endDate"
                     type="date"
                     label="End Date"
                     disabled={
@@ -1644,6 +1745,9 @@ export function CandidateApplyPage() {
                       )
                     }
                     slotProps={{
+                      htmlInput: {
+                        max: currentLocalDate(),
+                      },
                       inputLabel: {
                         shrink: true,
                       },

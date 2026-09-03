@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-023 (Keycloak-native forgot/reset password) is complete. Current work is **SSCS-024 email verification**, pending live validation. Local Keycloak email delivery uses Compose-managed Mailpit. Password candidates must verify their email before accessing the candidate profile flow.
+SSCS-023 (password recovery) and SSCS-024 (email verification) are released. Current work is **SSCS-025 candidate validation/UX and SSCS-026 application confirmation/history UX**.
 
-Google login remains managed through Google and Keycloak. Talensora has no custom password handling, reset token, verification page, or verification-token system.
+Candidate frontend validation must mirror the backend mobile-number rule and surface safe backend `fieldErrors`. Confirmation and history UX is being hardened using existing application contracts; do not expand backend DTOs or APIs unless a demonstrated gap requires it.

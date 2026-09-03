@@ -59,6 +59,11 @@ import type {
   ResumeResponse,
 } from '../types/candidate'
 
+import {
+  isValidMobileNumber,
+  MOBILE_NUMBER_HELPER_TEXT,
+} from '../utils/candidateValidation'
+
 type ProfileForm = {
   firstName: string
   lastName: string
@@ -457,6 +462,17 @@ export function CandidateProfilePage() {
     ) {
       setError(
         'First name, last name, mobile number and current location are required.'
+      )
+      return
+    }
+
+    if (
+      !isValidMobileNumber(
+        profileForm.mobileNumber
+      )
+    ) {
+      setError(
+        'Enter a valid mobile number with its country code.'
       )
       return
     }
@@ -1223,8 +1239,25 @@ export function CandidateProfilePage() {
 
             <TextField
               required
+              id="candidate-profile-mobile-number"
+              name="mobileNumber"
               label="Mobile Number"
-              helperText="Include country code, e.g. +919876543210"
+              error={
+                profileForm.mobileNumber
+                  .trim().length > 0 &&
+                !isValidMobileNumber(
+                  profileForm.mobileNumber
+                )
+              }
+              helperText={
+                profileForm.mobileNumber
+                  .trim().length > 0 &&
+                !isValidMobileNumber(
+                  profileForm.mobileNumber
+                )
+                  ? 'Enter a valid international mobile number.'
+                  : MOBILE_NUMBER_HELPER_TEXT
+              }
               value={
                 profileForm.mobileNumber
               }
