@@ -14,13 +14,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "notifications")
+@Table(
+        name = "notifications",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_notification_delivery_key",
+                        columnNames = "delivery_key"
+                )
+        }
+)
 public class Notification {
 
     @Id
@@ -34,6 +43,20 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private NotificationChannel channel;
+
+    @Column(
+            name = "delivery_key",
+            nullable = false,
+            length = 255
+    )
+    private String deliveryKey;
+
+    @Column(
+            name = "correlation_id",
+            nullable = false,
+            length = 100
+    )
+    private String correlationId;
 
     @Column(nullable = false, length = 320)
     private String recipientAddress;
@@ -71,12 +94,22 @@ public class Notification {
     private Notification(
             NotificationType type,
             NotificationChannel channel,
+            String deliveryKey,
+            String correlationId,
             String recipientAddress,
             String subject,
             String body
     ) {
         this.type = requireType(type);
         this.channel = requireChannel(channel);
+        this.deliveryKey = requireText(
+                deliveryKey,
+                "Notification delivery key is required."
+        );
+        this.correlationId = requireText(
+                correlationId,
+                "Notification correlation ID is required."
+        );
         this.recipientAddress = requireText(
                 recipientAddress,
                 "Recipient address is required."
@@ -96,6 +129,8 @@ public class Notification {
 
     public static Notification createEmail(
             NotificationType type,
+            String deliveryKey,
+            String correlationId,
             String recipientAddress,
             String subject,
             String body
@@ -103,6 +138,8 @@ public class Notification {
         return new Notification(
                 type,
                 NotificationChannel.EMAIL,
+                deliveryKey,
+                correlationId,
                 recipientAddress,
                 subject,
                 body
@@ -203,6 +240,14 @@ public class Notification {
 
     public NotificationChannel getChannel() {
         return channel;
+    }
+
+    public String getDeliveryKey() {
+        return deliveryKey;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
     }
 
     public String getRecipientAddress() {

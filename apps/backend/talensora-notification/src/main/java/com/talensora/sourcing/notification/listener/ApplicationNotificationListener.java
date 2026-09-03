@@ -6,12 +6,21 @@ import com.talensora.sourcing.notification.domain.NotificationType;
 import com.talensora.sourcing.notification.service.NotificationService;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.Locale;
+
 @Component
 public class ApplicationNotificationListener {
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(
+                    ApplicationNotificationListener.class
+            );
 
     private final NotificationService notificationService;
     private final String adminEmail;
@@ -52,7 +61,7 @@ public class ApplicationNotificationListener {
 
                 The status of your job application has been updated.
 
-                Application ID: %s
+                Application reference: %s
                 Requisition: %s
                 Job Title: %s
 
@@ -75,8 +84,13 @@ public class ApplicationNotificationListener {
                 event.changedAt()
         );
 
-        notificationService.sendEmail(
-                NotificationType.APPLICATION_STATUS_CHANGED,
+        deliverSafely(
+                NotificationType.CANDIDATE_APPLICATION_STATUS_CHANGED,
+                "application-status:"
+                        + event.newStatus().name().toLowerCase(Locale.ROOT)
+                        + ":candidate:"
+                        + event.applicationId(),
+                event.applicationReference(),
                 event.candidateEmail(),
                 subject,
                 body
@@ -96,7 +110,7 @@ public class ApplicationNotificationListener {
 
                 Your application has been submitted successfully.
 
-                Application ID: %s
+                Application reference: %s
                 Requisition: %s
                 Job Title: %s
                 Submitted At: %s
@@ -113,8 +127,11 @@ public class ApplicationNotificationListener {
                 event.status()
         );
 
-        notificationService.sendEmail(
-                NotificationType.APPLICATION_SUBMITTED,
+        deliverSafely(
+                NotificationType.CANDIDATE_APPLICATION_SUBMITTED,
+                "application-submitted:candidate:"
+                        + event.applicationId(),
+                event.applicationReference(),
                 event.candidateEmail(),
                 subject,
                 body
@@ -134,7 +151,7 @@ public class ApplicationNotificationListener {
 
                 Candidate: %s
                 Candidate Email: %s
-                Application ID: %s
+                Application reference: %s
                 Requisition: %s
                 Job Title: %s
                 Submitted At: %s
@@ -149,11 +166,41 @@ public class ApplicationNotificationListener {
                 event.status()
         );
 
-        notificationService.sendEmail(
-                NotificationType.APPLICATION_SUBMITTED,
+        deliverSafely(
+                NotificationType.ADMIN_APPLICATION_SUBMITTED,
+                "application-submitted:admin:"
+                        + event.applicationId(),
+                event.applicationReference(),
                 adminEmail,
                 subject,
                 body
         );
+    }
+
+    private void deliverSafely(
+            NotificationType type,
+            String deliveryKey,
+            String correlationId,
+            String recipient,
+            String subject,
+            String body
+    ) {
+        try {
+            notificationService.sendEmail(
+                    type,
+                    deliveryKey,
+                    correlationId,
+                    recipient,
+                    subject,
+                    body
+            );
+        } catch (RuntimeException exception) {
+            LOGGER.error(
+                    "Notification listener isolated a delivery failure. correlationId={}, type={}, errorType={}",
+                    correlationId,
+                    type,
+                    exception.getClass().getSimpleName()
+            );
+        }
     }
 }
