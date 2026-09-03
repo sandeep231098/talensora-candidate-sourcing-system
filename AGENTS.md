@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-023 (password recovery) and SSCS-024 (email verification) are released. Current work is **SSCS-025 candidate validation/UX and SSCS-026 application confirmation/history UX**.
+SSCS-025 (candidate validation/UX) and SSCS-026 (application confirmation/history UX) are released. Current work is **SSCS-027 controlled internal provisioning and SSCS-028 notification hardening**.
 
-Candidate frontend validation must mirror the backend mobile-number rule and surface safe backend `fieldErrors`. Confirmation and history UX is being hardened using existing application contracts; do not expand backend DTOs or APIs unless a demonstrated gap requires it.
+Internal users are provisioned only through controlled Keycloak group assignment. Remove `/external/candidates` before assigning an internal group; public registration and Google login never grant privileged access. Notifications use deterministic delivery keys and correlation identifiers, while failed records remain available for operations. Kafka and an automatic retry scheduler remain intentionally out of scope.

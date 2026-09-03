@@ -3,14 +3,14 @@ package com.talensora.sourcing.notification.service;
 import com.talensora.sourcing.notification.delivery.EmailSender;
 import com.talensora.sourcing.notification.domain.NotificationType;
 import com.talensora.sourcing.notification.entity.Notification;
-import com.talensora.sourcing.notification.repository.NotificationRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class NotificationService {
@@ -20,59 +20,115 @@ public class NotificationService {
                     NotificationService.class
             );
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationPersistenceService persistenceService;
     private final EmailSender emailSender;
 
     public NotificationService(
-            NotificationRepository notificationRepository,
+            NotificationPersistenceService persistenceService,
             EmailSender emailSender
     ) {
-        this.notificationRepository = notificationRepository;
+        this.persistenceService = persistenceService;
         this.emailSender = emailSender;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Notification sendEmail(
             NotificationType type,
+            String deliveryKey,
+            String correlationId,
             String recipient,
             String subject,
             String body
     ) {
-        Notification notification =
-                Notification.createEmail(
-                        type,
-                        recipient,
-                        subject,
-                        body
+        Optional<Notification> existing =
+                persistenceService.findByDeliveryKey(
+                        deliveryKey
                 );
 
-        notificationRepository.save(notification);
+        if (existing.isPresent()) {
+            logDuplicate(existing.get());
+            return existing.get();
+        }
+
+        Notification pending;
 
         try {
+            pending = persistenceService.createPending(
+                    type,
+                    deliveryKey,
+                    correlationId,
+                    recipient,
+                    subject,
+                    body
+            );
+        } catch (DataIntegrityViolationException exception) {
+            Notification duplicate =
+                    persistenceService
+                            .findByDeliveryKey(deliveryKey)
+                            .orElseThrow(() -> exception);
 
+            logDuplicate(duplicate);
+            return duplicate;
+        }
+
+        try {
             emailSender.send(
                     recipient,
                     subject,
                     body
             );
-
-            notification.markSent();
-
         } catch (RuntimeException exception) {
-
-            notification.markFailed(
-                    exception.getMessage()
-            );
+            Notification failed =
+                    persistenceService.markFailed(
+                            pending.getId(),
+                            safeErrorMessage(exception)
+                    );
 
             LOGGER.error(
-                    "Email notification delivery failed. recipient={}, type={}",
-                    recipient,
-                    type,
-                    exception
+                    "Notification delivery failed. notificationId={}, correlationId={}, type={}, status={}, attempt={}, errorType={}",
+                    failed.getId(),
+                    failed.getCorrelationId(),
+                    failed.getType(),
+                    failed.getStatus(),
+                    failed.getAttemptCount(),
+                    exception.getClass().getSimpleName()
             );
+
+            return failed;
         }
 
-        return notificationRepository
-                .saveAndFlush(notification);
+        Notification sent =
+                persistenceService.markSent(
+                        pending.getId()
+                );
+
+        logDelivery(sent);
+        return sent;
+    }
+
+    private void logDuplicate(Notification notification) {
+        LOGGER.info(
+                "Notification delivery skipped as duplicate. notificationId={}, correlationId={}, type={}, status={}, attempt={}",
+                notification.getId(),
+                notification.getCorrelationId(),
+                notification.getType(),
+                notification.getStatus(),
+                notification.getAttemptCount()
+        );
+    }
+
+    private void logDelivery(Notification notification) {
+        LOGGER.info(
+                "Notification delivery completed. notificationId={}, correlationId={}, type={}, status={}, attempt={}",
+                notification.getId(),
+                notification.getCorrelationId(),
+                notification.getType(),
+                notification.getStatus(),
+                notification.getAttemptCount()
+        );
+    }
+
+    private String safeErrorMessage(RuntimeException exception) {
+        return "Email delivery failed: "
+                + exception.getClass().getSimpleName();
     }
 }
