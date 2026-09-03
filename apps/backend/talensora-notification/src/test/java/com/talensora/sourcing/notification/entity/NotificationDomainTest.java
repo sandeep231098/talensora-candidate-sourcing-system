@@ -18,6 +18,8 @@ class NotificationDomainTest {
         Notification notification =
                 Notification.createEmail(
                         NotificationType.APPLICATION_SUBMITTED,
+                        "application-submitted:candidate:test",
+                        "APP-TEST",
                         "candidate@example.com",
                         "Application submitted",
                         "Your application has been submitted."
@@ -45,6 +47,8 @@ class NotificationDomainTest {
         Notification notification =
                 Notification.createEmail(
                         NotificationType.APPLICATION_SUBMITTED,
+                        "application-submitted:candidate:test",
+                        "APP-TEST",
                         "candidate@example.com",
                         "Application submitted",
                         "Your application has been submitted."
@@ -71,6 +75,8 @@ class NotificationDomainTest {
         Notification notification =
                 Notification.createEmail(
                         NotificationType.APPLICATION_SUBMITTED,
+                        "application-submitted:candidate:test",
+                        "APP-TEST",
                         "candidate@example.com",
                         "Application submitted",
                         "Your application has been submitted."
@@ -103,6 +109,8 @@ class NotificationDomainTest {
                 IllegalArgumentException.class,
                 () -> Notification.createEmail(
                         NotificationType.APPLICATION_SUBMITTED,
+                        "application-submitted:candidate:test",
+                        "APP-TEST",
                         " ",
                         "Application submitted",
                         "Body"
