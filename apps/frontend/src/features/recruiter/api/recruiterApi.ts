@@ -1,6 +1,7 @@
 import {
   authenticatedFetch,
 } from '../../auth/api/authenticatedFetch'
+import { ensureApiSuccess } from '../../../api/apiError'
 
 import type {
   AdminApplication,
@@ -16,25 +17,7 @@ type TokenProvider =
 const ensureSuccess = async (
   response: Response,
 ): Promise<Response> => {
-  if (response.ok) {
-    return response
-  }
-
-  let message =
-    `Backend request failed with HTTP ${response.status}`
-
-  try {
-    const data =
-      await response.json()
-
-    if (data?.message) {
-      message = data.message
-    }
-  } catch {
-    // Keep fallback message.
-  }
-
-  throw new Error(message)
+  return ensureApiSuccess(response)
 }
 
 export async function fetchAdminApplications(
@@ -156,11 +139,7 @@ export async function fetchAdminApplicationDetail(
       getToken,
     )
 
-  if (!response.ok) {
-    throw new Error(
-      `Backend request failed with HTTP ${response.status}`
-    )
-  }
+  await ensureSuccess(response)
 
   return response.json()
 }
@@ -269,11 +248,7 @@ export async function fetchRequisitionApplications(
       getToken,
     )
 
-  if (!response.ok) {
-    throw new Error(
-      `Unable to load requisition applications. HTTP ${response.status}`
-    )
-  }
+  await ensureSuccess(response)
 
   return response.json()
 }
@@ -317,11 +292,7 @@ export async function exportRequisitionApplications(
       getToken,
     )
 
-  if (!response.ok) {
-    throw new Error(
-      `Unable to export applications. HTTP ${response.status}`
-    )
-  }
+  await ensureSuccess(response)
 
   const blob =
     await response.blob()

@@ -50,8 +50,8 @@ export function SiteHeader() {
         <Toolbar
           disableGutters
           sx={{
-            minHeight: 72,
-            gap: 2,
+            minHeight: { xs: 64, sm: 72 },
+            gap: { xs: 0.75, sm: 2 },
           }}
         >
           <Box
@@ -63,7 +63,9 @@ export function SiteHeader() {
               gap: 1.2,
               color: 'primary.main',
               textDecoration: 'none',
+              flexShrink: 0,
             }}
+            aria-label="Talensora careers home"
           >
             <WorkHistoryOutlinedIcon />
 
@@ -71,6 +73,7 @@ export function SiteHeader() {
               variant="h6"
               sx={{
                 fontWeight: 800,
+                display: { xs: 'none', sm: 'block' },
               }}
             >
               Talensora Careers
@@ -83,6 +86,8 @@ export function SiteHeader() {
             component={RouterLink}
             to="/jobs"
             color="inherit"
+            aria-label="Find jobs"
+            sx={{ display: { xs: 'none', md: 'inline-flex' } }}
           >
             Find Jobs
           </Button>
@@ -94,6 +99,7 @@ export function SiteHeader() {
                 component={RouterLink}
                 to={portal.path}
                 color="inherit"
+                aria-label={portal.label}
               >
                 {portal.label}
               </Button>
@@ -107,6 +113,7 @@ export function SiteHeader() {
               onClick={() =>
                 void auth.logout()
               }
+              aria-label="Sign out"
             >
               Sign out
             </Button>
@@ -116,6 +123,7 @@ export function SiteHeader() {
               to={`/login?returnTo=${returnTo}`}
               variant="contained"
               startIcon={<LoginIcon />}
+              aria-label="Sign in"
             >
               Sign in
             </Button>

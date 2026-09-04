@@ -13,6 +13,7 @@ import {
 } from 'react'
 
 import { useAuth } from '../../../auth/useAuth'
+import { ensureApiSuccess } from '../../../api/apiError'
 
 import {
   authenticatedFetch,
@@ -39,11 +40,7 @@ export function CandidateAccessPage() {
             auth.getValidToken
           )
 
-        if (!response.ok) {
-          throw new Error(
-            `Backend returned HTTP ${response.status}`
-          )
-        }
+        await ensureApiSuccess(response)
 
         const applications =
           await response.json()

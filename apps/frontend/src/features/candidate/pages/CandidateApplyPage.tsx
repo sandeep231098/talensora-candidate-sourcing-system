@@ -1024,6 +1024,8 @@ export function CandidateApplyPage() {
             >
               <TextField
                 required
+                id="candidate-application-first-name"
+                name="firstName"
                 label="First Name"
                 value={
                   profileForm.firstName
@@ -1041,6 +1043,8 @@ export function CandidateApplyPage() {
 
               <TextField
                 required
+                id="candidate-application-last-name"
+                name="lastName"
                 label="Last Name"
                 value={
                   profileForm.lastName
@@ -1058,6 +1062,8 @@ export function CandidateApplyPage() {
 
               <TextField
                 select
+                id="candidate-application-gender"
+                name="gender"
                 label="Gender"
                 value={
                   profileForm.gender
@@ -1155,6 +1161,8 @@ export function CandidateApplyPage() {
 
               <TextField
                 required
+                id="candidate-application-current-location"
+                name="currentLocation"
                 label="Current Location"
                 value={
                   profileForm.currentLocation
@@ -1171,6 +1179,8 @@ export function CandidateApplyPage() {
               />
 
               <TextField
+                id="candidate-application-current-company"
+                name="currentCompany"
                 label="Current Company"
                 value={
                   profileForm.currentCompany
@@ -1191,6 +1201,8 @@ export function CandidateApplyPage() {
 
               <TextField
                 select
+                id="candidate-application-notice-period"
+                name="noticePeriod"
                 label="Notice Period"
                 value={
                   profileForm.noticePeriod

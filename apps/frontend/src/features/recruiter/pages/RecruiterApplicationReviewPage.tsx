@@ -9,7 +9,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
   Divider,
   LinearProgress,
@@ -37,26 +36,8 @@ import type {
   AdminApplicationDetail,
   ApplicationStatus,
 } from '../types/recruiter'
-
-const statusOptions:
-  ApplicationStatus[] = [
-    'NEW',
-    'REVIEWED',
-    'SHORTLISTED',
-    'REJECTED',
-  ]
-
-const formatStatus = (
-  status: ApplicationStatus,
-): string =>
-  status
-    .toLowerCase()
-    .replaceAll('_', ' ')
-    .replace(
-      /^./,
-      (value) =>
-        value.toUpperCase(),
-    )
+import { ApplicationStatusChip } from '../../../components/common/ApplicationStatusChip'
+import { APPLICATION_STATUSES, formatApplicationStatus } from '../../../types/applicationStatus'
 
 const formatBytes = (
   bytes: number,
@@ -213,7 +194,7 @@ export function RecruiterApplicationReviewPage() {
         })
 
         setSuccess(
-          `Application status changed to ${formatStatus(status)}.`
+          `Application status changed to ${formatApplicationStatus(status)}.`
         )
       } catch (caught) {
         setError(
@@ -453,11 +434,7 @@ export function RecruiterApplicationReviewPage() {
               </Typography>
             </Box>
 
-            <Chip
-              label={formatStatus(
-                application.status
-              )}
-            />
+            <ApplicationStatusChip status={application.status} />
           </Box>
 
           <Divider
@@ -514,6 +491,8 @@ export function RecruiterApplicationReviewPage() {
             }}
           >
             <TextField
+              id="application-review-status"
+              name="applicationStatus"
               select
               fullWidth
               size="small"
@@ -528,13 +507,13 @@ export function RecruiterApplicationReviewPage() {
                 )
               }
             >
-              {statusOptions.map(
+              {APPLICATION_STATUSES.map(
                 (status) => (
                   <MenuItem
                     key={status}
                     value={status}
                   >
-                    {formatStatus(
+                    {formatApplicationStatus(
                       status
                     )}
                   </MenuItem>

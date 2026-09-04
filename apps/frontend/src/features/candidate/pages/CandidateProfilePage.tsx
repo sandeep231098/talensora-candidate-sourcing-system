@@ -1151,6 +1151,8 @@ export function CandidateProfilePage() {
           {profile?.email && (
             <TextField
               fullWidth
+              id="candidate-profile-email"
+              name="email"
               label="Email"
               value={profile.email}
               disabled
@@ -1172,6 +1174,8 @@ export function CandidateProfilePage() {
           >
             <TextField
               required
+              id="candidate-profile-first-name"
+              name="firstName"
               label="First Name"
               value={
                 profileForm.firstName
@@ -1187,6 +1191,8 @@ export function CandidateProfilePage() {
 
             <TextField
               required
+              id="candidate-profile-last-name"
+              name="lastName"
               label="Last Name"
               value={
                 profileForm.lastName
@@ -1202,6 +1208,8 @@ export function CandidateProfilePage() {
 
             <TextField
               select
+              id="candidate-profile-gender"
+              name="gender"
               label="Gender"
               value={
                 profileForm.gender
@@ -1272,6 +1280,8 @@ export function CandidateProfilePage() {
 
             <TextField
               type="date"
+              id="candidate-profile-date-of-birth"
+              name="dateOfBirth"
               label="Date of Birth"
               value={
                 profileForm.dateOfBirth
@@ -1292,6 +1302,8 @@ export function CandidateProfilePage() {
 
             <TextField
               required
+              id="candidate-profile-current-location"
+              name="currentLocation"
               label="Current Location"
               value={
                 profileForm
@@ -1307,6 +1319,8 @@ export function CandidateProfilePage() {
             />
 
             <TextField
+              id="candidate-profile-current-company"
+              name="currentCompany"
               label="Current Company"
               value={
                 profileForm
@@ -1323,6 +1337,8 @@ export function CandidateProfilePage() {
 
             <TextField
               select
+              id="candidate-profile-notice-period"
+              name="noticePeriod"
               label="Notice Period"
               value={
                 profileForm.noticePeriod

@@ -24,11 +24,8 @@ export type EmploymentType =
   | 'CONTRACT'
   | 'INTERNSHIP'
 
-export type ApplicationStatus =
-  | 'NEW'
-  | 'REVIEWED'
-  | 'SHORTLISTED'
-  | 'REJECTED'
+import type { ApplicationStatus } from '../../../types/applicationStatus'
+export type { ApplicationStatus } from '../../../types/applicationStatus'
 
 export interface PublicJob {
   id: string

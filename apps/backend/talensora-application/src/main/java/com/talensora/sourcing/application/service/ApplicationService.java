@@ -27,9 +27,11 @@ import com.talensora.sourcing.resume.repository.CandidateResumeRepository;
 import com.talensora.sourcing.resume.service.ResumeService;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.hibernate.exception.ConstraintViolationException;
 
 import java.nio.charset.StandardCharsets;
 
@@ -39,6 +41,9 @@ import java.util.UUID;
 @Service
 @Transactional
 public class ApplicationService {
+
+    private static final String DUPLICATE_APPLICATION_CONSTRAINT =
+            "uk_application_candidate_requisition";
 
     private final CandidateApplicationRepository applicationRepository;
     private final CandidateProfileRepository candidateRepository;
@@ -128,8 +133,17 @@ public class ApplicationService {
                         request.privacyConsent()
                 );
 
-        CandidateApplication saved =
-                applicationRepository.saveAndFlush(application);
+        CandidateApplication saved;
+        try {
+            saved = applicationRepository.saveAndFlush(application);
+        } catch (DataIntegrityViolationException exception) {
+            if (isDuplicateApplicationConstraint(exception)) {
+                throw new DuplicateApplicationException(
+                        "You have already applied to this requisition."
+                );
+            }
+            throw exception;
+        }
 
         publishApplicationSubmittedEvent(
                 saved,
@@ -138,6 +152,20 @@ public class ApplicationService {
         );
 
         return toResponse(saved);
+    }
+
+    static boolean isDuplicateApplicationConstraint(Throwable exception) {
+        Throwable cause = exception;
+        while (cause != null) {
+            if (cause instanceof ConstraintViolationException violation
+                    && DUPLICATE_APPLICATION_CONSTRAINT.equals(
+                            violation.getConstraintName()
+                    )) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     @Transactional(readOnly = true)

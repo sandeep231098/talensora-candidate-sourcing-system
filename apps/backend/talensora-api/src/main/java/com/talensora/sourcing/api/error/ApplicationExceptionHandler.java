@@ -3,6 +3,7 @@ package com.talensora.sourcing.api.error;
 import com.talensora.sourcing.application.exception.ApplicationNotFoundException;
 import com.talensora.sourcing.application.exception.DuplicateApplicationException;
 import com.talensora.sourcing.application.exception.InvalidApplicationException;
+import com.talensora.sourcing.security.RequestCorrelationFilter;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.Instant;
 import java.util.Map;
@@ -68,11 +71,21 @@ public class ApplicationExceptionHandler {
                         status.getReasonPhrase(),
                         message,
                         path,
-                        Map.of()
+                        Map.of(),
+                        currentCorrelationId()
                 );
 
         return ResponseEntity
                 .status(status)
                 .body(response);
+    }
+
+    private String currentCorrelationId() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        Object value = attributes == null ? null : attributes.getAttribute(
+                RequestCorrelationFilter.REQUEST_ATTRIBUTE,
+                RequestAttributes.SCOPE_REQUEST
+        );
+        return value instanceof String correlationId ? correlationId : null;
     }
 }

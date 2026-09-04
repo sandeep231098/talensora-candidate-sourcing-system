@@ -624,6 +624,8 @@ export function RequisitionsPage() {
             }}
           >
             <TextField
+              id="requisition-search"
+              name="requisitionSearch"
               size="small"
               label="Search requisitions"
               value={search}
@@ -645,6 +647,9 @@ export function RequisitionsPage() {
               }}
             >
               <Select
+                id="requisition-status-filter"
+                name="requisitionStatus"
+                inputProps={{ 'aria-label': 'Filter requisitions by status' }}
                 value={statusFilter}
                 onChange={(event) =>
                   setStatusFilter(
@@ -673,7 +678,7 @@ export function RequisitionsPage() {
           </Stack>
         </Stack>
 
-        <TableContainer>
+        <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
           <Table
             size="small"
             sx={{

@@ -15,6 +15,8 @@ public record ApiErrorResponse(
 
         String path,
 
-        Map<String, String> fieldErrors
+        Map<String, String> fieldErrors,
+
+        String correlationId
 ) {
 }
