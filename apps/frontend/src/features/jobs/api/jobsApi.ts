@@ -1,4 +1,5 @@
 import type { Job, JobSearchParams } from '../types/job'
+import { ensureApiSuccess } from '../../../api/apiError'
 
 const BASE_URL = '/api/v1/public/jobs'
 
@@ -16,14 +17,6 @@ const buildQueryString = (params: JobSearchParams): string => {
   return value ? `?${value}` : ''
 }
 
-const ensureSuccess = async (response: Response): Promise<void> => {
-  if (!response.ok) {
-    throw new Error(
-      `Request failed with status ${response.status}`
-    )
-  }
-}
-
 export const fetchPublicJobs = async (
   params: JobSearchParams = {},
 ): Promise<Job[]> => {
@@ -31,7 +24,7 @@ export const fetchPublicJobs = async (
     `${BASE_URL}${buildQueryString(params)}`
   )
 
-  await ensureSuccess(response)
+  await ensureApiSuccess(response)
 
   return response.json() as Promise<Job[]>
 }
@@ -41,7 +34,7 @@ export const fetchPublicJob = async (
 ): Promise<Job> => {
   const response = await fetch(`${BASE_URL}/${id}`)
 
-  await ensureSuccess(response)
+  await ensureApiSuccess(response)
 
   return response.json() as Promise<Job>
 }

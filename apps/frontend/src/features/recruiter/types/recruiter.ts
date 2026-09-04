@@ -3,11 +3,8 @@ import type {
   CandidateExperience,
   CandidateProfile,
 } from '../../candidate/types/candidate'
-export type ApplicationStatus =
-  | 'NEW'
-  | 'REVIEWED'
-  | 'SHORTLISTED'
-  | 'REJECTED'
+import type { ApplicationStatus } from '../../../types/applicationStatus'
+export type { ApplicationStatus } from '../../../types/applicationStatus'
 
 export type RequisitionStatus =
   | 'DRAFT'

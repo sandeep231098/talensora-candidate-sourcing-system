@@ -1,6 +1,7 @@
 import {
   authenticatedFetch,
 } from '../../auth/api/authenticatedFetch'
+import { ensureApiSuccess } from '../../../api/apiError'
 
 import type {
   ApplicationResponse,
@@ -19,62 +20,10 @@ import type {
 type TokenProvider =
   () => Promise<string | null>
 
-const errorMessage = async (
-  response: Response,
-): Promise<string> => {
-  try {
-    const body: unknown =
-      await response.json()
-
-    if (
-      body &&
-      typeof body === 'object' &&
-      'fieldErrors' in body &&
-      body.fieldErrors &&
-      typeof body.fieldErrors ===
-        'object'
-    ) {
-      const fieldMessages =
-        Object.values(
-          body.fieldErrors
-        ).filter(
-          (value): value is string =>
-            typeof value === 'string' &&
-            value.trim().length > 0
-        )
-
-      if (fieldMessages.length > 0) {
-        return [
-          ...new Set(fieldMessages),
-        ].join(' ')
-      }
-    }
-
-    if (
-      body &&
-      typeof body === 'object' &&
-      'message' in body &&
-      typeof body.message === 'string'
-    ) {
-      return body.message
-    }
-  } catch {
-    // Keep generic fallback.
-  }
-
-  return `Request failed with HTTP ${response.status}`
-}
-
 const ensureSuccess = async (
   response: Response,
 ): Promise<Response> => {
-  if (response.ok) {
-    return response
-  }
-
-  throw new Error(
-    await errorMessage(response)
-  )
+  return ensureApiSuccess(response)
 }
 
 export async function fetchPublicJob(

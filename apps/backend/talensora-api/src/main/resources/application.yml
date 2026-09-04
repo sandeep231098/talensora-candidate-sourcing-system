@@ -35,6 +35,11 @@ spring:
 server:
   port: ${SERVER_PORT:9093}
 
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
 
 management:
   endpoints:
@@ -46,4 +51,4 @@ management:
 
   endpoint:
     health:
-      show-details: always
+      show-details: never
