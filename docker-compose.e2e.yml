@@ -1,0 +1,38 @@
+name: talensora-e2e
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: talensora_candidate_db
+      POSTGRES_USER: talensora
+      POSTGRES_PASSWORD: ${E2E_DB_PASSWORD}
+    ports:
+      - "55433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talensora -d talensora_candidate_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.31.0
+    ports:
+      - "51025:1025"
+      - "58025:8025"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.2
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: e2e-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${E2E_KEYCLOAK_ADMIN_PASSWORD}
+      KC_HOSTNAME: http://localhost:58180
+      GOOGLE_CLIENT_ID: e2e-disabled
+      GOOGLE_CLIENT_SECRET: e2e-disabled
+    ports:
+      - "58180:8080"
+    volumes:
+      - ./infrastructure/keycloak/talensora-realm.json:/opt/keycloak/data/import/talensora-realm.json:ro
+    depends_on:
+      - mailpit
