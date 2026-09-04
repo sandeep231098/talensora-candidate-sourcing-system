@@ -52,3 +52,15 @@ management:
   endpoint:
     health:
       show-details: never
+
+
+talensora:
+  resume:
+    storage:
+      type: ${RESUME_STORAGE_TYPE:local}
+      local-directory: ${RESUME_LOCAL_DIRECTORY:${user.home}/.talensora/resumes}
+      s3:
+        bucket: ${RESUME_S3_BUCKET:}
+        prefix: ${RESUME_S3_PREFIX:talensora/resumes}
+        region: ${AWS_REGION:}
+        endpoint: ${RESUME_S3_ENDPOINT:}

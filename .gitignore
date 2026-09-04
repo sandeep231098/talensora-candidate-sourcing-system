@@ -1,3 +1,7 @@
 .env
 .env.*
 !.env.example
+.e2e/
+.e2e-*.log
+apps/frontend/test-results/
+apps/frontend/playwright-report/

@@ -1,7 +1,9 @@
 import Keycloak from 'keycloak-js'
 
 export const keycloak = new Keycloak({
-  url: 'http://localhost:8180',
+  url:
+    import.meta.env.VITE_KEYCLOAK_URL ??
+    'http://localhost:8180',
   realm: 'talensora',
   clientId: 'talensora-web',
 })
