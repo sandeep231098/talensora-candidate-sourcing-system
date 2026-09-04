@@ -44,14 +44,7 @@ import type {
   AdminRequisition,
   ApplicationStatus,
 } from '../types/recruiter'
-
-const statusOptions:
-  ApplicationStatus[] = [
-    'NEW',
-    'REVIEWED',
-    'SHORTLISTED',
-    'REJECTED',
-  ]
+import { APPLICATION_STATUSES, formatApplicationStatus } from '../../../types/applicationStatus'
 
 const formatStatus = (
   status: string,
@@ -338,7 +331,7 @@ export function RequisitionApplicationsPage() {
         )
 
         setSuccess(
-          `${updated.applicationReference} changed to ${formatStatus(updated.status)}.`
+          `${updated.applicationReference} changed to ${formatApplicationStatus(updated.status)}.`
         )
       } catch (caught) {
         setError(
@@ -737,6 +730,8 @@ export function RequisitionApplicationsPage() {
             }}
           >
             <TextField
+              id="requisition-application-search"
+              name="applicationSearch"
               label="Search candidate"
               placeholder="Name, email or application ID"
               size="small"
@@ -755,6 +750,8 @@ export function RequisitionApplicationsPage() {
             />
 
             <TextField
+              id="requisition-application-status"
+              name="applicationStatus"
               select
               label="Status"
               size="small"
@@ -775,13 +772,13 @@ export function RequisitionApplicationsPage() {
                 All statuses
               </MenuItem>
 
-              {statusOptions.map(
+              {APPLICATION_STATUSES.map(
                 (option) => (
                   <MenuItem
                     key={option}
                     value={option}
                   >
-                    {formatStatus(
+                    {formatApplicationStatus(
                       option
                     )}
                   </MenuItem>

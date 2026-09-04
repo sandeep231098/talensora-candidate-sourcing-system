@@ -25,6 +25,7 @@ import {
 import {
   LoadingState,
 } from '../../../components/common/LoadingState'
+import { ApplicationStatusChip } from '../../../components/common/ApplicationStatusChip'
 
 import {
   fetchMyApplications,
@@ -55,6 +56,8 @@ export function MyApplicationsPage() {
   ] = useState<string | null>(
     null
   )
+
+  const [retryCount, setRetryCount] = useState(0)
 
   const loadApplications =
     useCallback(
@@ -95,7 +98,7 @@ export function MyApplicationsPage() {
     return () => {
       active = false
     }
-  }, [loadApplications])
+  }, [loadApplications, retryCount])
 
   if (loading) {
     return (
@@ -150,6 +153,14 @@ export function MyApplicationsPage() {
         <Alert
           severity="error"
           sx={{ mb: 3 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => {
+              setLoading(true)
+              setRetryCount((count) => count + 1)
+            }}>
+              Retry
+            </Button>
+          }
         >
           {error}
         </Alert>
@@ -251,11 +262,7 @@ export function MyApplicationsPage() {
                       'flex-start',
                   }}
                 >
-                  <Chip
-                    label={
-                      application.status
-                    }
-                  />
+                  <ApplicationStatusChip status={application.status} />
 
                   <Chip
                     variant="outlined"

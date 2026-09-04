@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-025 (candidate validation/UX) and SSCS-026 (application confirmation/history UX) are released. Current work is **SSCS-027 controlled internal provisioning and SSCS-028 notification hardening**.
+SSCS-027 (controlled internal provisioning) and SSCS-028 (notification hardening) are released. Current work is **SSCS-029 security/error-handling hardening and SSCS-030 targeted UI/UX cleanup**.
 
-Internal users are provisioned only through controlled Keycloak group assignment. Remove `/external/candidates` before assigning an internal group; public registration and Google login never grant privileged access. Notifications use deterministic delivery keys and correlation identifiers, while failed records remain available for operations. Kafka and an automatic retry scheduler remain intentionally out of scope.
+API failures use sanitized structured responses with correlation IDs. JWT roles are allowlisted, candidate endpoints reject dual-role internal identities, unmatched API routes fail closed, and actuator health details remain private. Frontend routes are split lazily, application statuses and API error messages are shared, and responsive/error states are being hardened. A broad redesign remains deferred; AWS S3 resume storage and staging deployment are upcoming work.

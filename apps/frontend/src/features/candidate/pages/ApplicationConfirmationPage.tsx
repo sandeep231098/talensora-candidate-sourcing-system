@@ -78,6 +78,8 @@ export function ApplicationConfirmationPage() {
       Boolean(applicationId)
   )
 
+  const [retryCount, setRetryCount] = useState(0)
+
   useEffect(() => {
     if (
       state?.application ||
@@ -140,6 +142,7 @@ export function ApplicationConfirmationPage() {
     applicationId,
     auth.getValidToken,
     state?.application,
+    retryCount,
   ])
 
   const reference =
@@ -209,6 +212,15 @@ export function ApplicationConfirmationPage() {
           <Alert
             severity="error"
             sx={{ mt: 3 }}
+            action={applicationId ? (
+              <Button color="inherit" size="small" onClick={() => {
+                setError(null)
+                setRestoring(true)
+                setRetryCount((count) => count + 1)
+              }}>
+                Retry
+              </Button>
+            ) : undefined}
           >
             {error ??
               'This application confirmation is unavailable. Open My Applications to view your submitted applications.'}

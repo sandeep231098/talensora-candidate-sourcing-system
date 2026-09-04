@@ -5,7 +5,6 @@ export const APPLICATION_ROLES = [
   'HIRING_MANAGER',
   'AUDITOR',
   'ACCOUNTS',
-  'CUSTOMER',
   'CANDIDATE',
 ] as const
 
@@ -60,11 +59,6 @@ export const PORTALS:
       role: 'ACCOUNTS',
       path: '/accounts',
       label: 'Accounts Portal',
-    },
-    {
-      role: 'CUSTOMER',
-      path: '/customer',
-      label: 'Customer Portal',
     },
     {
       role: 'CANDIDATE',

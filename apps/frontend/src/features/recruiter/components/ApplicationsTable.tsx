@@ -1,7 +1,7 @@
 import {
   Button,
-  Chip,
   FormControl,
+  InputLabel,
   MenuItem,
   Select,
   Table,
@@ -20,6 +20,8 @@ import type {
   AdminApplication,
   ApplicationStatus,
 } from '../types/recruiter'
+import { ApplicationStatusChip } from '../../../components/common/ApplicationStatusChip'
+import { APPLICATION_STATUSES, formatApplicationStatus } from '../../../types/applicationStatus'
 
 interface ApplicationsTableProps {
   applications: AdminApplication[]
@@ -39,26 +41,6 @@ interface ApplicationsTableProps {
     application: AdminApplication,
   ) => Promise<void>
 }
-
-const statusOptions:
-  ApplicationStatus[] = [
-    'NEW',
-    'REVIEWED',
-    'SHORTLISTED',
-    'REJECTED',
-  ]
-
-const formatStatus = (
-  status: ApplicationStatus,
-): string =>
-  status
-    .toLowerCase()
-    .replaceAll('_', ' ')
-    .replace(
-      /\b\w/g,
-      (letter) =>
-        letter.toUpperCase(),
-    )
 
 const formatExperience = (
   months: number,
@@ -116,7 +98,7 @@ export function ApplicationsTable({
   }
 
   return (
-    <TableContainer>
+    <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
       <Table
         size="small"
         sx={{
@@ -294,7 +276,14 @@ export function ApplicationsTable({
                         minWidth: 145,
                       }}
                     >
+                      <InputLabel id={`application-status-${application.id}-label`}>
+                        Status
+                      </InputLabel>
                       <Select
+                        id={`application-status-${application.id}`}
+                        name={`applicationStatus-${application.id}`}
+                        labelId={`application-status-${application.id}-label`}
+                        label="Status"
                         value={
                           application.status
                         }
@@ -307,13 +296,13 @@ export function ApplicationsTable({
                           )
                         }
                       >
-                        {statusOptions.map(
+                        {APPLICATION_STATUSES.map(
                           (status) => (
                             <MenuItem
                               key={status}
                               value={status}
                             >
-                              {formatStatus(
+                              {formatApplicationStatus(
                                 status
                               )}
                             </MenuItem>
@@ -322,17 +311,7 @@ export function ApplicationsTable({
                       </Select>
                     </FormControl>
 
-                    <Chip
-                      size="small"
-                      label={
-                        formatStatus(
-                          application.status
-                        )
-                      }
-                      sx={{
-                        ml: 1,
-                      }}
-                    />
+                    <ApplicationStatusChip status={application.status} />
                   </TableCell>
                 </TableRow>
               )
