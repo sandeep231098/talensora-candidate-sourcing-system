@@ -4,8 +4,8 @@ export const keycloak = new Keycloak({
   url:
     import.meta.env.VITE_KEYCLOAK_URL ??
     'http://localhost:8180',
-  realm: 'talensora',
-  clientId: 'talensora-web',
+  realm: import.meta.env.VITE_KEYCLOAK_REALM ?? 'talensora',
+  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? 'talensora-web',
 })
 
 let initializationPromise: Promise<boolean> | null = null

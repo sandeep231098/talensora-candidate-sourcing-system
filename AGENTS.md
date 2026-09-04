@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-029 (security/error handling) and SSCS-030 (targeted UI/UX cleanup) are released. Current work is **SSCS-031 S3 resume-storage readiness and SSCS-032 automated API/E2E testing**.
+SSCS-031 (private S3 resume-storage readiness) and SSCS-032 (automated API/E2E testing) are released. Current work is **SSCS-033 AWS staging deployment readiness**.
 
-Resume storage supports local and private S3 backends; local remains the default. Never commit AWS credentials, and deployed S3 access must use a workload IAM role. Backend, PostgreSQL API, and compact Chromium E2E coverage are being expanded; Google-hosted login remains a manual validation. AWS resource creation and staging deployment remain deferred to SSCS-033.
+The staging target is one EC2 host running Nginx/frontend, the modular-monolith API, and Keycloak, backed by private RDS PostgreSQL, private S3, SES, ECR, SSM Parameter Store, and CloudWatch. No AWS resources have been provisioned. Use workload IAM roles and GitHub OIDC; never add long-lived AWS keys. Keycloak remains the identity provider, and Google authentication remains Google -> Keycloak -> Talensora. SES replaces Mailpit only in staging. `.vscode/settings.json` is an unrelated local change and must remain untouched and unstaged.

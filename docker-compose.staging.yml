@@ -1,0 +1,109 @@
+name: talensora-staging
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks: [talensora]
+
+services:
+  frontend:
+    <<: *service-defaults
+    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE is required}
+    environment:
+      STAGING_APP_HOST: ${STAGING_APP_HOST:?STAGING_APP_HOST is required}
+      STAGING_KEYCLOAK_HOST: ${STAGING_KEYCLOAK_HOST:?STAGING_KEYCLOAK_HOST is required}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${TLS_CERT_DIRECTORY:?TLS_CERT_DIRECTORY is required}:/etc/nginx/tls:ro
+    depends_on:
+      backend: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+    deploy:
+      resources:
+        limits: { memory: 128M }
+        reservations: { memory: 64M }
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION:?AWS_REGION is required}
+        awslogs-group: ${NGINX_LOG_GROUP:-/talensora-staging/nginx}
+        awslogs-stream: frontend
+
+  backend:
+    <<: *service-defaults
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE is required}
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-staging}
+      DB_URL: ${DB_URL:?DB_URL is required}
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}
+      RESUME_STORAGE_TYPE: s3
+      RESUME_S3_BUCKET: ${RESUME_S3_BUCKET:?RESUME_S3_BUCKET is required}
+      RESUME_S3_PREFIX: ${RESUME_S3_PREFIX:-talensora/resumes}
+      AWS_REGION: ${AWS_REGION:?AWS_REGION is required}
+      SMTP_HOST: ${SMTP_HOST:?SMTP_HOST is required}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:?SMTP_USERNAME is required}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?SMTP_PASSWORD is required}
+      SMTP_AUTH: "true"
+      SMTP_STARTTLS: "true"
+      SMTP_FROM: ${SMTP_FROM:?SMTP_FROM is required}
+      ADMIN_NOTIFICATION_EMAIL: ${ADMIN_NOTIFICATION_EMAIL:?ADMIN_NOTIFICATION_EMAIL is required}
+      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75.0}
+    healthcheck:
+      test: [CMD-SHELL, "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9093 && printf \"GET /actuator/health HTTP/1.0\\r\\n\\r\\n\" >&3 && grep -q \"200\" <&3'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    deploy:
+      resources:
+        limits: { memory: 768M }
+        reservations: { memory: 512M }
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION:?AWS_REGION is required}
+        awslogs-group: ${APPLICATION_LOG_GROUP:-/talensora-staging/application}
+        awslogs-stream: backend
+
+  keycloak:
+    <<: *service-defaults
+    image: quay.io/keycloak/keycloak:26.7.2
+    command: [start]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: ${KC_DB_URL:?KC_DB_URL is required}
+      KC_DB_USERNAME: ${KC_DB_USERNAME:?KC_DB_USERNAME is required}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?KC_DB_PASSWORD is required}
+      KC_HOSTNAME: ${KC_HOSTNAME:?KC_HOSTNAME is required}
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?KC_BOOTSTRAP_ADMIN_USERNAME is required}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?KC_BOOTSTRAP_ADMIN_PASSWORD is required}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
+    healthcheck:
+      test: [CMD-SHELL, "bash -c \"exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '200' <&3\""]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    deploy:
+      resources:
+        limits: { memory: 1024M }
+        reservations: { memory: 512M }
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION:?AWS_REGION is required}
+        awslogs-group: ${KEYCLOAK_LOG_GROUP:-/talensora-staging/keycloak}
+        awslogs-stream: keycloak
+
+networks:
+  talensora:
+    driver: bridge

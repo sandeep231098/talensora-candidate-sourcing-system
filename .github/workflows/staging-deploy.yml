@@ -1,0 +1,91 @@
+name: Deploy AWS Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Validated commit on main to deploy
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: talensora-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy immutable images
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout requested commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.commit_sha }}
+          fetch-depth: 0
+
+      - name: Require commit from main
+        env:
+          DEPLOY_SHA: ${{ inputs.commit_sha }}
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "$DEPLOY_SHA")"
+          git merge-base --is-ancestor HEAD origin/main
+          echo "DEPLOY_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Configure AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Sign in to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push backend
+        env:
+          IMAGE: ${{ vars.BACKEND_ECR_REPOSITORY }}:${{ env.DEPLOY_SHA }}
+        run: |
+          docker build --file apps/backend/Dockerfile --tag "$IMAGE" apps/backend
+          docker push "$IMAGE"
+
+      - name: Build and push frontend
+        env:
+          IMAGE: ${{ vars.FRONTEND_ECR_REPOSITORY }}:${{ env.DEPLOY_SHA }}
+          KEYCLOAK_URL: ${{ vars.STAGING_KEYCLOAK_URL }}
+        run: |
+          docker build --file apps/frontend/Dockerfile \
+            --build-arg VITE_KEYCLOAK_URL="$KEYCLOAK_URL" \
+            --build-arg VITE_KEYCLOAK_REALM=talensora \
+            --build-arg VITE_KEYCLOAK_CLIENT_ID=talensora-web \
+            --tag "$IMAGE" apps/frontend
+          docker push "$IMAGE"
+
+      - name: Deploy through SSM
+        id: deploy
+        env:
+          INSTANCE_ID: ${{ vars.AWS_STAGING_INSTANCE_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          BACKEND_IMAGE: ${{ vars.BACKEND_ECR_REPOSITORY }}:${{ env.DEPLOY_SHA }}
+          FRONTEND_IMAGE: ${{ vars.FRONTEND_ECR_REPOSITORY }}:${{ env.DEPLOY_SHA }}
+        run: |
+          commands=$(jq -cn --arg region "$AWS_REGION" --arg backend "$BACKEND_IMAGE" --arg frontend "$FRONTEND_IMAGE" '{commands:["AWS_REGION=" + ($region|@sh) + " BACKEND_IMAGE=" + ($backend|@sh) + " FRONTEND_IMAGE=" + ($frontend|@sh) + " /opt/talensora/bin/deploy-staging.sh"]}')
+          command_id=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy Talensora $DEPLOY_SHA" \
+            --parameters "$commands" \
+            --query Command.CommandId --output text)
+          echo "command_id=$command_id" >> "$GITHUB_OUTPUT"
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "$INSTANCE_ID"
+          status=$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query Status --output text)
+          test "$status" = Success
+
+      - name: Verify public health
+        env:
+          HEALTH_URL: ${{ vars.STAGING_HEALTH_URL }}
+        run: curl --fail --silent --show-error --retry 12 --retry-delay 5 "$HEALTH_URL"
