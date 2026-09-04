@@ -4,7 +4,6 @@ import com.talensora.sourcing.resume.exception.InvalidResumeException;
 import com.talensora.sourcing.resume.exception.ResumeNotFoundException;
 import com.talensora.sourcing.resume.exception.ResumeStorageException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -26,14 +25,11 @@ public class LocalResumeStorage implements ResumeStorage {
     private final Path rootDirectory;
 
     public LocalResumeStorage(
-            @Value(
-                    "${talensora.resume.storage.local-directory:${user.home}/.talensora/resumes}"
-            )
-            String directory
+            ResumeStorageProperties properties
     ) {
 
         rootDirectory =
-                Paths.get(directory)
+                Paths.get(properties.getLocalDirectory())
                         .toAbsolutePath()
                         .normalize();
 

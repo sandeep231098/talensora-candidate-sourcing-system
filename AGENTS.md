@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-027 (controlled internal provisioning) and SSCS-028 (notification hardening) are released. Current work is **SSCS-029 security/error-handling hardening and SSCS-030 targeted UI/UX cleanup**.
+SSCS-029 (security/error handling) and SSCS-030 (targeted UI/UX cleanup) are released. Current work is **SSCS-031 S3 resume-storage readiness and SSCS-032 automated API/E2E testing**.
 
-API failures use sanitized structured responses with correlation IDs. JWT roles are allowlisted, candidate endpoints reject dual-role internal identities, unmatched API routes fail closed, and actuator health details remain private. Frontend routes are split lazily, application statuses and API error messages are shared, and responsive/error states are being hardened. A broad redesign remains deferred; AWS S3 resume storage and staging deployment are upcoming work.
+Resume storage supports local and private S3 backends; local remains the default. Never commit AWS credentials, and deployed S3 access must use a workload IAM role. Backend, PostgreSQL API, and compact Chromium E2E coverage are being expanded; Google-hosted login remains a manual validation. AWS resource creation and staging deployment remain deferred to SSCS-033.
