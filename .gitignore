@@ -1,7 +1,18 @@
 .env
 .env.*
 !.env.example
+!.env.staging.example
 .e2e/
 .e2e-*.log
 apps/frontend/test-results/
 apps/frontend/playwright-report/
+
+# Terraform local state and provider cache
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+__pycache__/
+*.py[cod]

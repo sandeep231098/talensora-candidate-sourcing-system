@@ -7,7 +7,10 @@ on:
       - main
     paths:
       - "docker-compose.yml"
+      - "docker-compose.staging.yml"
       - "infrastructure/**"
+      - "infra/aws/**"
+      - ".env.staging.example"
       - ".github/workflows/config-ci.yml"
 
   pull_request:
@@ -16,7 +19,10 @@ on:
       - main
     paths:
       - "docker-compose.yml"
+      - "docker-compose.staging.yml"
       - "infrastructure/**"
+      - "infra/aws/**"
+      - ".env.staging.example"
       - ".github/workflows/config-ci.yml"
 
 permissions:
@@ -44,10 +50,48 @@ jobs:
       - name: Validate Keycloak realm JSON
         run: python -m json.tool infrastructure/keycloak/talensora-realm.json > /dev/null
 
+      - name: Validate staging Docker Compose
+        env:
+          FRONTEND_IMAGE: example.invalid/frontend:sha
+          BACKEND_IMAGE: example.invalid/backend:sha
+          STAGING_APP_HOST: staging.example.com
+          STAGING_KEYCLOAK_HOST: id-staging.example.com
+          TLS_CERT_DIRECTORY: /tmp/tls
+          DB_URL: jdbc:postgresql://db.internal:5432/talensora_candidate_db
+          DB_USERNAME: placeholder
+          DB_PASSWORD: placeholder
+          KEYCLOAK_ISSUER_URI: https://id-staging.example.com/realms/talensora
+          RESUME_S3_BUCKET: placeholder-bucket
+          AWS_REGION: ap-south-1
+          SMTP_HOST: email-smtp.ap-south-1.amazonaws.com
+          SMTP_USERNAME: placeholder
+          SMTP_PASSWORD: placeholder
+          SMTP_FROM: no-reply@example.com
+          ADMIN_NOTIFICATION_EMAIL: recruiting@example.com
+          KC_DB_URL: jdbc:postgresql://db.internal:5432/keycloak
+          KC_DB_USERNAME: placeholder
+          KC_DB_PASSWORD: placeholder
+          KC_HOSTNAME: https://id-staging.example.com
+          KC_BOOTSTRAP_ADMIN_USERNAME: placeholder
+          KC_BOOTSTRAP_ADMIN_PASSWORD: placeholder
+          GOOGLE_CLIENT_ID: placeholder
+          GOOGLE_CLIENT_SECRET: placeholder
+        run: docker compose -f docker-compose.staging.yml config --quiet
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Validate staging Terraform
+        working-directory: infra/aws/staging
+        run: |
+          terraform fmt -check -recursive
+          terraform init -backend=false -input=false
+          terraform validate
+
       - name: Reject tracked environment files
         shell: bash
         run: |
-          tracked_env_files="$({ git ls-files | grep -E '(^|/)\.env($|\.)' || true; } | grep -Ev '(^|/)\.env\.example$' || true)"
+          tracked_env_files="$({ git ls-files | grep -E '(^|/)\.env($|\.)' || true; } | grep -Ev '\.example$' || true)"
 
           if [[ -n "$tracked_env_files" ]]; then
             echo "Tracked environment files detected:"
