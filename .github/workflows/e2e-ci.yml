@@ -90,8 +90,9 @@ jobs:
         run: |
           chmod +x mvnw
           export DB_PASSWORD="$E2E_DB_PASSWORD"
-          nohup ./mvnw --batch-mode --no-transfer-progress spring-boot:run -pl talensora-api -am > ../../.e2e-backend.log 2>&1 &
-          for attempt in {1..60}; do
+          ./mvnw --batch-mode --no-transfer-progress -pl talensora-api -am package -DskipTests
+          nohup java -jar talensora-api/target/talensora-api-0.0.1-SNAPSHOT.jar > ../../.e2e-backend.log 2>&1 &
+          for attempt in {1..90}; do
             curl --fail --silent http://localhost:59093/actuator/health && break
             sleep 2
           done
@@ -130,6 +131,7 @@ jobs:
             .e2e-backend.log
             .e2e-frontend.log
           if-no-files-found: ignore
+          include-hidden-files: true
           retention-days: 7
 
       - name: Stop isolated environment
