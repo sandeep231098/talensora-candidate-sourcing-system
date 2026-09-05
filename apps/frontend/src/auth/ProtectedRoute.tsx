@@ -9,10 +9,12 @@ import { useAuth } from './useAuth'
 
 interface ProtectedRouteProps {
   requiredRoles?: string[]
+  forbiddenRoles?: string[]
 }
 
 export function ProtectedRoute({
   requiredRoles = [],
+  forbiddenRoles = [],
 }: ProtectedRouteProps) {
   const auth = useAuth()
   const location = useLocation()
@@ -40,6 +42,19 @@ export function ProtectedRoute({
   if (
     requiredRoles.length > 0 &&
     !requiredRoles.some(
+      (role) => auth.hasRole(role)
+    )
+  ) {
+    return (
+      <Navigate
+        to="/forbidden"
+        replace
+      />
+    )
+  }
+
+  if (
+    forbiddenRoles.some(
       (role) => auth.hasRole(role)
     )
   ) {

@@ -56,6 +56,6 @@ Every feature follows: feature branch -> implementation -> tests/build/runtime v
 
 ## Current Handoff State
 
-SSCS-031 (private S3 resume-storage readiness) and SSCS-032 (automated API/E2E testing) are released. Current work is **SSCS-033 AWS staging deployment readiness**.
+SSCS-033 repository-side AWS staging foundation is released, but no AWS resources have been provisioned. Current work is **SSCS-034 role dashboards and professional UI refresh**; AWS provisioning remains paused until this refresh is released.
 
-The staging target is one EC2 host running Nginx/frontend, the modular-monolith API, and Keycloak, backed by private RDS PostgreSQL, private S3, SES, ECR, SSM Parameter Store, and CloudWatch. No AWS resources have been provisioned. Use workload IAM roles and GitHub OIDC; never add long-lived AWS keys. Keycloak remains the identity provider, and Google authentication remains Google -> Keycloak -> Talensora. SES replaces Mailpit only in staging. `.vscode/settings.json` is an unrelated local change and must remain untouched and unstaged.
+Candidate and internal role dashboards use a shared responsive application shell and design system. Dashboards consume only existing authorized APIs; unsupported backend capabilities remain intentionally unavailable. This work does not expand backend RBAC or authentication scope. `.vscode/settings.json` is an unrelated local change and must remain untouched and unstaged.

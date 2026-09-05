@@ -21,3 +21,16 @@ export const formatDate = (
     year: 'numeric',
   }).format(new Date(value))
 }
+
+export const formatDateTime = (
+  value?: string | null,
+): string => {
+  if (!value) {
+    return 'Not specified'
+  }
+
+  return new Intl.DateTimeFormat('en-IN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value))
+}

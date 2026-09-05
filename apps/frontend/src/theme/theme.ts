@@ -5,7 +5,8 @@ export const appTheme = createTheme({
     mode: 'light',
 
     primary: {
-      main: '#243B73',
+      main: '#3155A6',
+      dark: '#203B78',
     },
 
     secondary: {
@@ -19,7 +20,7 @@ export const appTheme = createTheme({
   },
 
   shape: {
-    borderRadius: 12,
+    borderRadius: 14,
   },
 
   typography: {
@@ -57,13 +58,60 @@ export const appTheme = createTheme({
       defaultProps: {
         disableElevation: true,
       },
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+          '&:focus-visible': {
+            outline: '3px solid rgba(49, 85, 166, 0.3)',
+            outlineOffset: 2,
+          },
+        },
+      },
     },
 
     MuiCard: {
       styleOverrides: {
         root: {
-          border: '1px solid #E7E9F0',
-          boxShadow: '0 4px 18px rgba(25, 35, 60, 0.05)',
+          border: '1px solid #E3E7EF',
+          boxShadow: '0 8px 28px rgba(31, 42, 68, 0.06)',
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#F3F5F9',
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          '&.Mui-selected': {
+            backgroundColor: '#E9EFFC',
+            color: '#203B78',
+          },
+          '&:focus-visible': {
+            outline: '3px solid rgba(49, 85, 166, 0.3)',
+            outlineOffset: 1,
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          '&:focus-visible': {
+            outline: '3px solid rgba(49, 85, 166, 0.3)',
+            outlineOffset: 2,
+          },
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          borderRight: '1px solid #E3E7EF',
         },
       },
     },
