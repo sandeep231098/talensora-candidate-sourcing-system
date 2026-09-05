@@ -36,6 +36,9 @@ test.describe.serial('Talensora critical journeys', () => {
     const email = requireCredential(candidateEmail, 'E2E_CANDIDATE_EMAIL')
     const password = requireCredential(candidatePassword, 'E2E_CANDIDATE_PASSWORD')
     await login(page, email, password)
+    await expect(page).toHaveURL(/\/candidate\/dashboard/)
+    await expect(page.getByRole('heading', { name: /Welcome back/i })).toBeVisible()
+    await page.getByRole('link', { name: 'Profile & resume' }).click()
     await page.goto('/candidate/profile')
 
     await page.getByLabel('First Name').fill('E2E')
@@ -71,7 +74,7 @@ test.describe.serial('Talensora critical journeys', () => {
     await page.getByRole('button', { name: 'Submit Application' }).click()
 
     await expect(page.getByText('Application reference')).toBeVisible()
-    await page.getByRole('link', { name: /my applications/i }).click()
+    await page.locator('main').getByRole('link', { name: 'My Applications' }).click()
     await expect(page.getByText('E2E Software Engineer')).toBeVisible()
   })
 
@@ -98,5 +101,15 @@ test.describe.serial('Talensora critical journeys', () => {
     await page.getByRole('button', { name: 'Sign out' }).click()
     await page.goto('/candidate/profile')
     await expect(page).toHaveURL(/\/login/)
+  })
+
+  test('candidate cannot access an internal dashboard', async ({ page }) => {
+    await login(
+      page,
+      requireCredential(candidateEmail, 'E2E_CANDIDATE_EMAIL'),
+      requireCredential(candidatePassword, 'E2E_CANDIDATE_PASSWORD'),
+    )
+    await page.goto('/admin')
+    await expect(page).toHaveURL(/\/forbidden/)
   })
 })

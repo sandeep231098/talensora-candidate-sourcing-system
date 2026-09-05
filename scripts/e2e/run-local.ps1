@@ -34,6 +34,16 @@ $env:E2E_CANDIDATE_EMAIL = 'candidate-e2e@example.test'
 $env:E2E_CANDIDATE_PASSWORD = [guid]::NewGuid().ToString('N')
 $env:E2E_RECRUITER_EMAIL = 'recruiter-e2e@example.test'
 $env:E2E_RECRUITER_PASSWORD = [guid]::NewGuid().ToString('N')
+$env:E2E_HR_EMAIL = 'hr-e2e@example.test'
+$env:E2E_HR_PASSWORD = [guid]::NewGuid().ToString('N')
+$env:E2E_ADMIN_EMAIL = 'admin-e2e@example.test'
+$env:E2E_ADMIN_PASSWORD = [guid]::NewGuid().ToString('N')
+$env:E2E_HIRING_MANAGER_EMAIL = 'hiring-manager-e2e@example.test'
+$env:E2E_HIRING_MANAGER_PASSWORD = [guid]::NewGuid().ToString('N')
+$env:E2E_AUDITOR_EMAIL = 'auditor-e2e@example.test'
+$env:E2E_AUDITOR_PASSWORD = [guid]::NewGuid().ToString('N')
+$env:E2E_ACCOUNTS_EMAIL = 'accounts-e2e@example.test'
+$env:E2E_ACCOUNTS_PASSWORD = [guid]::NewGuid().ToString('N')
 $env:E2E_BASE_URL = 'http://localhost:55173'
 $env:MSYS_NO_PATHCONV = '1'
 $wslEnvironmentNames = @(
@@ -42,7 +52,17 @@ $wslEnvironmentNames = @(
     'E2E_CANDIDATE_EMAIL',
     'E2E_CANDIDATE_PASSWORD',
     'E2E_RECRUITER_EMAIL',
-    'E2E_RECRUITER_PASSWORD'
+    'E2E_RECRUITER_PASSWORD',
+    'E2E_HR_EMAIL',
+    'E2E_HR_PASSWORD',
+    'E2E_ADMIN_EMAIL',
+    'E2E_ADMIN_PASSWORD',
+    'E2E_HIRING_MANAGER_EMAIL',
+    'E2E_HIRING_MANAGER_PASSWORD',
+    'E2E_AUDITOR_EMAIL',
+    'E2E_AUDITOR_PASSWORD',
+    'E2E_ACCOUNTS_EMAIL',
+    'E2E_ACCOUNTS_PASSWORD'
 )
 $env:WSLENV = (($wslEnvironmentNames | ForEach-Object { "$_/u" }) -join ':')
 

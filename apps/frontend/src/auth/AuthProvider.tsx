@@ -191,7 +191,7 @@ export function AuthProvider({
   const login =
     useCallback(
       async (
-        returnTo = '/candidate'
+        returnTo = '/portal'
       ) => {
         await keycloak.login({
           redirectUri:
@@ -204,7 +204,7 @@ export function AuthProvider({
   const loginWithGoogle =
     useCallback(
       async (
-        returnTo = '/candidate'
+        returnTo = '/portal'
       ) => {
         await keycloak.login({
           redirectUri:
