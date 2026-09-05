@@ -31,6 +31,11 @@ jobs:
     env:
       E2E_CANDIDATE_EMAIL: candidate-e2e@example.test
       E2E_RECRUITER_EMAIL: recruiter-e2e@example.test
+      E2E_HR_EMAIL: hr-e2e@example.test
+      E2E_ADMIN_EMAIL: admin-e2e@example.test
+      E2E_HIRING_MANAGER_EMAIL: hiring-manager-e2e@example.test
+      E2E_AUDITOR_EMAIL: auditor-e2e@example.test
+      E2E_ACCOUNTS_EMAIL: accounts-e2e@example.test
 
     steps:
       - name: Checkout repository
@@ -53,7 +58,7 @@ jobs:
       - name: Generate isolated runtime credentials
         shell: bash
         run: |
-          for name in E2E_DB_PASSWORD E2E_KEYCLOAK_ADMIN_PASSWORD E2E_CANDIDATE_PASSWORD E2E_RECRUITER_PASSWORD; do
+          for name in E2E_DB_PASSWORD E2E_KEYCLOAK_ADMIN_PASSWORD E2E_CANDIDATE_PASSWORD E2E_RECRUITER_PASSWORD E2E_HR_PASSWORD E2E_ADMIN_PASSWORD E2E_HIRING_MANAGER_PASSWORD E2E_AUDITOR_PASSWORD E2E_ACCOUNTS_PASSWORD; do
             value="$(openssl rand -hex 24)"
             echo "::add-mask::$value"
             echo "$name=$value" >> "$GITHUB_ENV"

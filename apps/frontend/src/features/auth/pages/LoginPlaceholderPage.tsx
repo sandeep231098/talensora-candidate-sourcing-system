@@ -21,6 +21,7 @@ import { LoadingState } from '../../../components/common/LoadingState'
 
 const normalizeReturnTo = (
   value: string | null,
+  fallback: string,
 ): string => {
   if (
     value &&
@@ -30,7 +31,7 @@ const normalizeReturnTo = (
     return value
   }
 
-  return '/candidate'
+  return fallback
 }
 
 export function LoginPlaceholderPage() {
@@ -39,9 +40,16 @@ export function LoginPlaceholderPage() {
   const [searchParams] =
     useSearchParams()
 
-  const returnTo =
+  const loginReturnTo =
     normalizeReturnTo(
-      searchParams.get('returnTo')
+      searchParams.get('returnTo'),
+      '/portal',
+    )
+
+  const registrationReturnTo =
+    normalizeReturnTo(
+      searchParams.get('returnTo'),
+      '/candidate',
     )
 
   if (!auth.initialized) {
@@ -53,7 +61,7 @@ export function LoginPlaceholderPage() {
   if (auth.authenticated) {
     return (
       <Navigate
-        to={returnTo}
+        to={loginReturnTo}
         replace
       />
     )
@@ -84,9 +92,8 @@ export function LoginPlaceholderPage() {
           severity="info"
           sx={{ mt: 3 }}
         >
-          Authentication is securely
-          managed through Talensora
-          Identity.
+          Your credentials are handled
+          securely by Talensora Identity.
         </Alert>
 
         <Button
@@ -96,7 +103,7 @@ export function LoginPlaceholderPage() {
           startIcon={<GoogleIcon />}
           onClick={() =>
             void auth.loginWithGoogle(
-              returnTo
+              loginReturnTo
             )
           }
           sx={{ mt: 3 }}
@@ -114,7 +121,7 @@ export function LoginPlaceholderPage() {
           variant="outlined"
           startIcon={<LoginIcon />}
           onClick={() =>
-            void auth.login(returnTo)
+            void auth.login(loginReturnTo)
           }
         >
           Continue to sign in
@@ -131,7 +138,7 @@ export function LoginPlaceholderPage() {
           startIcon={<PersonAddIcon />}
           onClick={() =>
             void auth.register(
-              returnTo
+              registrationReturnTo
             )
           }
         >
